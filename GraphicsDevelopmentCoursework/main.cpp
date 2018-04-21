@@ -29,19 +29,35 @@ int main(int argc, char* argv[]) {
 
 	SDL_GLContext contexteOpenGL(0);
 	contexteOpenGL = SDL_GL_CreateContext(fenetre);
-	if (contexteOpenGL == 0) {
+	if(contexteOpenGL == 0) {
 		cout << SDL_GetError() << endl;
 		SDL_DestroyWindow(fenetre);
 		SDL_Quit();
 		return -1;
 	}
 
+	GLenum initialisationGLEW(glewInit());
+	if(initialisationGLEW != GLEW_OK) {
+		cout << "Erreur d'initialisation de GLEW : " << glewGetErrorString(initialisationGLEW) << endl;
+		SDL_GL_DeleteContext(contexteOpenGL);
+		SDL_DestroyWindow(fenetre);
+		SDL_Quit();
+		return -1;
+	}
+
+	float vertices[] = { -0.5, -0.5,   0.0, 0.5,   0.5, -0.5 };
 	SDL_Event evenements;
 	bool terminer(false);
+
 	while(!terminer) {
 		SDL_WaitEvent(&evenements);
 		if(evenements.window.event == SDL_WINDOWEVENT_CLOSE)
 			terminer = true;
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+		glEnableVertexAttribArray(0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDisableVertexAttribArray(0);
+		SDL_GL_SwapWindow(fenetre);
 	}
 
 	getchar();
