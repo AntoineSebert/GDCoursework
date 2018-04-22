@@ -1,7 +1,5 @@
 #pragma once
-class Painter {
-	public:
-		Painter();
-		~Painter();
-};
 
+namespace Painter {
+
+}
