@@ -12,11 +12,13 @@
 #include "Painter.hpp"
 #include "EventHandler.hpp"
 
-typedef std::pair<double, double> point;
-typedef std::list<std::pair<double, double>> points;
+typedef std::pair<float, float> point;
+typedef std::list<std::pair<float, float>> points;
 
 SDL_Window* window = nullptr;
 SDL_GLContext OpenGLContext = nullptr;
 SDL_Event events;
 GLenum GLEW;
 bool mainCondition = false;
+
+Painter myPainter = Painter();

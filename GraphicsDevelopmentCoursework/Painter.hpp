@@ -1,12 +1,15 @@
 #pragma once
 
+#include <SDL.h>
+#include <GL/glew.h>
+
 #include <list>
 #include <memory>
 #include <utility>
 #include <vector>
 
-typedef std::pair<double, double> point;
-typedef std::list<std::pair<double, double>> points;
+typedef std::pair<float, float> point;
+typedef std::list<std::pair<float, float>> points;
 
 class Painter {
 	/* ATTRIBUTES */
@@ -16,22 +19,21 @@ class Painter {
 	/* MEMBERS */
 		public:
 			// constructors
-				// Default constructor
+				// default constructor
 					Painter();
-				// Copy constructor
+				// copy constructor
 					Painter(const Painter& other) : data(other.getDataPointer()) {}
-				// Move constructor
+				// move constructor
 					Painter(Painter&& other) noexcept;
-			// Destructor
+			// destructor
 					~Painter() noexcept;
-			// Operators
-				// Copy assignment operator
+			// operators
+				// copy assignment operator
 					Painter& operator=(const Painter& other);
-				// Move assignment operator
+				// move assignment operator
 					Painter& operator=(Painter&& other) noexcept;
-			// Getters
+			// getters
 				std::shared_ptr<std::vector<points>> getDataPointer() const;
-		protected:
-			bool draw2D(points myPoints);
-			bool draw3D(points myPoints);
+			// drawing
+				void drawTriangles(float* vertices);
 };

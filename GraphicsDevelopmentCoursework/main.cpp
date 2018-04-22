@@ -83,10 +83,8 @@ int main(int argc, char* argv[]) {
 		SDL_WaitEvent(&events);
 		if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 			mainCondition = true;
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-		glEnableVertexAttribArray(0);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDisableVertexAttribArray(0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		myPainter.drawTriangles(vertices);
 		SDL_GL_SwapWindow(window);
 	}
 
