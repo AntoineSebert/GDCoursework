@@ -7,12 +7,16 @@
 #include <iostream>
 #include <stdio.h>
 #include <utility>
+#include <vector>
 
-#include "Graphics.hpp"
+#include "Painter.hpp"
+#include "EventHandler.hpp"
 
 typedef std::pair<double, double> point;
+typedef std::vector<pair<double, double>> points;
 
-std::unique_ptr<Graphics> myGraphics;
+std::unique_ptr<Painter> myPainter;
+std::unique_ptr<EventHandler> myEventHendler;
 
 SDL_Window* window = nullptr;
 SDL_GLContext OpenGLContext = nullptr;
