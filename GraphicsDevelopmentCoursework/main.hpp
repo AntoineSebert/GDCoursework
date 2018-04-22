@@ -13,7 +13,7 @@
 #include "EventHandler.hpp"
 
 typedef std::pair<double, double> point;
-typedef std::list<pair<double, double>> points;
+typedef std::list<std::pair<double, double>> points;
 
 SDL_Window* window = nullptr;
 SDL_GLContext OpenGLContext = nullptr;

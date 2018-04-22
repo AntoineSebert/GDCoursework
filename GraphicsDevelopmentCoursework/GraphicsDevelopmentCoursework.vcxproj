@@ -121,14 +121,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EventHandler.cpp" />
-    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Painter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.hpp" />
-    <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="main.hpp" />
     <ClInclude Include="Painter.hpp" />
   </ItemGroup>
