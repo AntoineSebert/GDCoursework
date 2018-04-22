@@ -33,7 +33,7 @@ class Painter {
 				// move assignment operator
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
-				std::shared_ptr<std::vector<points>> getDataPointer() const;
+					std::shared_ptr<std::vector<points>> getDataPointer() const;
 			// drawing
 				void drawTriangles(float* vertices);
 };
