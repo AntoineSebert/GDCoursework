@@ -18,9 +18,16 @@ Painter& Painter::operator=(Painter&& other) noexcept {
 	return *this;
 }
 shared_ptr<vector<points>> Painter::getDataPointer() const { return data; }
-
+/*
 void Painter::drawTriangles(float* vertices) {
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDisableVertexAttribArray(0);
+}
+*/
+void Painter::drawTriangles(initializer_list<float> vertices) {
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vector<float>(vertices).data());
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);

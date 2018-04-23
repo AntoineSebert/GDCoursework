@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include <memory>
+#include <initializer_list>
 #include <iostream>
 #include <stdio.h>
 #include <utility>

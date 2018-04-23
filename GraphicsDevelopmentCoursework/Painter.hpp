@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <GL/glew.h>
 
+#include <initializer_list>
 #include <list>
 #include <memory>
 #include <utility>
@@ -35,5 +36,5 @@ class Painter {
 			// getters
 					std::shared_ptr<std::vector<points>> getDataPointer() const;
 			// drawing
-				void drawTriangles(float* vertices);
+				void drawTriangles(std::initializer_list<float> vertices);
 };

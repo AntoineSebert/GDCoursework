@@ -70,15 +70,6 @@ int main(int argc, char* argv[]) {
 
 	init();
 
-	float vertices[] = {
-		-0.5,
-		-0.5,
-		 0.0,
-		 0.5,
-		 0.5,
-		-0.5
-	};
-
 	Shader shaderBasique("Shaders/basic2D.vert", "Shaders/basic2D.frag");
 	shaderBasique.load();
 
@@ -88,7 +79,7 @@ int main(int argc, char* argv[]) {
 			mainCondition = true;
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderBasique.getProgramID());
-		myPainter.drawTriangles(vertices);
+		myPainter.drawTriangles(initializer_list<float>({ -0.5, -0.5, 0.0, 0.5, 0.5, -0.5 }));
 		glUseProgram(0);
 		SDL_GL_SwapWindow(window);
 	}
