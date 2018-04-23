@@ -11,6 +11,7 @@
 
 #include "Painter.hpp"
 #include "EventHandler.hpp"
+#include "Shader.h"
 
 typedef std::pair<float, float> point;
 typedef std::list<std::pair<float, float>> points;

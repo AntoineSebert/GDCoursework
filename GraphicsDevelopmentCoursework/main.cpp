@@ -79,11 +79,17 @@ int main(int argc, char* argv[]) {
 		-0.5
 	};
 
+	Shader shaderBasique("Shaders/basic2D.vert", "Shaders/basic2D.frag");
+	shaderBasique.load();
+
 	while(!mainCondition) {
 		SDL_WaitEvent(&events);
 		if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 			mainCondition = true;
+		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(shaderBasique.getProgramID());
 		myPainter.drawTriangles(vertices);
+		glUseProgram(0);
 		SDL_GL_SwapWindow(window);
 	}
 
