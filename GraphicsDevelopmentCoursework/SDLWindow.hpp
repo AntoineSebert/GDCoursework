@@ -12,7 +12,6 @@ class SDLWindow {
 	/* ATTRIBUTES */
 		private:
 			bool ready;
-			Painter windowPainter;
 		public:
 			Painter painter;
 	/* MEMBERS */
@@ -32,7 +31,7 @@ class SDLWindow {
 				// move assignment operator
 					SDLWindow& operator=(SDLWindow&& other) noexcept;
 			// initialization
-				bool init(SDL_Window* window, SDL_GLContext OpenGLContext, GLenum GLEW);
+				bool init(SDL_Window* window/*, SDL_GLContext OpenGLContext, GLenum GLEW*/);
 			// getters
 				/*
 				SDL_Window* getUnderlyingWindow();

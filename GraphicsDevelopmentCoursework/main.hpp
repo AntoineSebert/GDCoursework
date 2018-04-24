@@ -5,16 +5,10 @@
 
 #include <array>
 #include <iostream>
+#include <memory>
 #include <stdio.h>
 
-#include "EventHandler.hpp"
-#include "SDLWindow.hpp"
-#include "Shader.h"
+#include "Scene.hpp"
 
-SDL_Window* window = nullptr;
-SDL_GLContext OpenGLContext = nullptr;
-SDL_Event events;
-GLenum GLEW;
-bool mainCondition = false;
-
-SDLWindow myWindow;
+std::unique_ptr<Scene> myScene;
+//Scene* myScene = nullptr;

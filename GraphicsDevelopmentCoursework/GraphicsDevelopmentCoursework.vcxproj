@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Painter.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SDLWindow.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
@@ -130,6 +131,7 @@
     <ClInclude Include="EventHandler.hpp" />
     <ClInclude Include="main.hpp" />
     <ClInclude Include="Painter.hpp" />
+    <ClInclude Include="Scene.hpp" />
     <ClInclude Include="SDLWindow.hpp" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>

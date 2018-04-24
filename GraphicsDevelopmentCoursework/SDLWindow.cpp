@@ -3,7 +3,7 @@
 using namespace std;
 
 // public
-	SDLWindow::SDLWindow() { Painter myPainter = Painter(); }
+	SDLWindow::SDLWindow() : painter(Painter()) {}
 	SDLWindow::SDLWindow(const SDLWindow& other) {}
 	SDLWindow::SDLWindow(SDLWindow&& other) noexcept {}
 	SDLWindow::~SDLWindow() {}
@@ -18,12 +18,22 @@ using namespace std;
 		return *this;
 	}
 // protected
-	bool SDLWindow::init(SDL_Window* window, SDL_GLContext OpenGLContext, GLenum GLEW) {
+	bool SDLWindow::init(SDL_Window* window/*, SDL_GLContext OpenGLContext, GLenum GLEW*/) {
 		ready = false;
 		if(!SDLInitialization())
 			return false;
 		setOpenGLAttributes();
-		window = SDL_CreateWindow("Anthony Sébert 1705851", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1000, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+		/*
+		window = SDL_CreateWindow(
+			"Anthony Sébert 1705851",
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			1000,
+			600,
+			SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
+		);
+		*/
+		/*
 		if(!windowCreation(window))
 			return false;
 		OpenGLContext = SDL_GL_CreateContext(window);
@@ -32,6 +42,7 @@ using namespace std;
 		GLEW = glewInit();
 		if(!GLEWInitialization(window, OpenGLContext, GLEW))
 			return false;
+		*/
 		ready = true;
 		return ready;
 	}
@@ -62,7 +73,7 @@ using namespace std;
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
 	bool SDLWindow::windowCreation(SDL_Window* window) {
-		if(window == nullptr) {
+		if(window == NULL) {
 			cout << "Error during the window creation : " << SDL_GetError() << endl;
 			SDL_Quit();
 			return false;

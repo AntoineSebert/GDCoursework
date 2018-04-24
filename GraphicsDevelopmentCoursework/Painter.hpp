@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+// TODO rule of zero ?
+
 class Painter {
 	/* ATTRIBUTES */
 		private:
@@ -30,5 +32,5 @@ class Painter {
 			// getters
 					std::vector<float*> getData() const;
 			// drawing
-				void drawTriangles(float* vertices);
+				static void drawTriangles(float* vertices);
 };
