@@ -15,14 +15,15 @@ Painter& Painter::operator=(Painter&& other) noexcept {
 	return *this;
 }
 vector<float*> Painter::getData() const { return data; }
-std::vector<Shader> Painter::getShaders() const { return shaders; }
+vector<unique_ptr<Shader>> Painter::getShaders() const { return shaders; }
 void Painter::drawTriangles(float* vertices) {
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.end(), vertices));
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
 }
-unsigned int Painter::addShader(std::string sourceVertex, std::string sourceFragment) const {
-	//shaders.emplace_back(sourceVertex, sourceFragment);
-	return 0;
+vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string sourceVertex, std::string sourceFragment) const {
+	unique_ptr<Shader> myShader = make_unique<Shader>(new Shader(sourceVertex, sourceFragment));
+	//return (myShader->load() ? shaders.insert(shaders.end(), myShader) : shaders.end());
+	return shaders.end();
 }

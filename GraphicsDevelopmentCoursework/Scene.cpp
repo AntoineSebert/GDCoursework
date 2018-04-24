@@ -6,7 +6,7 @@ using namespace std;
 	Scene::Scene(string name, unsigned int height, unsigned int width) : window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false) {
 		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
-			myPainter = unique_ptr<Painter>(new Painter());
+			myPainter = make_unique<Painter>(new Painter());
 		}
 	}
 	Scene::Scene(const Scene& other) : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {}
@@ -31,6 +31,7 @@ using namespace std;
 		events = other.events;
 		glew = other.glew;
 		mainCondition = other.mainCondition;
+		return *this;
 	}
 	bool Scene::mainLoop() {
 		/*

@@ -13,7 +13,7 @@ class Painter {
 	/* ATTRIBUTES */
 		private:
 			std::vector<float*> data;
-			std::vector<Shader> shaders;
+			std::vector<std::unique_ptr<Shader>> shaders;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -32,9 +32,9 @@ class Painter {
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
 				std::vector<float*> getData() const;
-				std::vector<Shader> getShaders() const;
+				std::vector<std::unique_ptr<Shader>> getShaders() const;
 			// drawing
 				void drawTriangles(float* vertices);
 			// shaders
-				unsigned int addShader(std::string sourceVertex, std::string sourceFragment) const;
+				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment) const;
 };
