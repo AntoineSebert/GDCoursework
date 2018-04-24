@@ -4,13 +4,8 @@ using namespace std;
 
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width) : window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false) {
-		unsigned int control = SDLInitialization();
-		control += windowCreation(name, height, width);
-		control += contextCreation();
-		control += glewInitialization();
-		cout << control << endl;
-		if(control == 4)
-			mainCondition = false;
+		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization())
+			mainCondition = true;
 	}
 	Scene::Scene(const Scene& other) : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {}
 	Scene::Scene(Scene&& other) noexcept : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {
@@ -40,10 +35,10 @@ using namespace std;
 		Shader shaderBasique("Shaders/basic2D.vert", "Shaders/basic2D.frag");
 		shaderBasique.load();
 		*/
-		while(!mainCondition) {
+		while(mainCondition) {
 			SDL_WaitEvent(&events);
 			if(events.window.event == SDL_WINDOWEVENT_CLOSE)
-				mainCondition = true;
+				mainCondition = false;
 			glClear(GL_COLOR_BUFFER_BIT);
 			//glUseProgram(shaderBasique.getProgramID());
 			//Painter::drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
