@@ -27,7 +27,7 @@ Shader& Shader::operator=(const Shader& other) {
 	load();
 	return *this;
 }
-Shader & Shader::operator=(Shader && other) noexcept {
+Shader& Shader::operator=(Shader&& other) noexcept {
 	if(this == &other)
 		return *this;
 	vertexID = other.vertexID;
@@ -94,7 +94,7 @@ bool Shader::compileShader(GLuint& shader, GLenum type, const string& sourceFile
 		return false;
 	}
 	// reading stream
-	ifstream file(sourceFile.c_str());
+	ifstream file(sourceFile);
 	// opening test
 	if(!file) {
 		cout << "Error : the file " << sourceFile << " cannot be found" << endl;

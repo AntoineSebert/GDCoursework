@@ -2,32 +2,24 @@
 
 using namespace std;
 
-Painter::Painter() { }
-Painter::Painter(Painter&& other) noexcept : data(other.data) { other.data.reset(); }
+Painter::Painter() {}
+Painter::Painter(const Painter& other) : data(other.data) {}
+Painter::Painter(Painter&& other) noexcept : data(other.data) {}
 Painter::~Painter() noexcept {}
 Painter& Painter::operator=(const Painter& other) {
-	Painter tmp(other);			// re-use copy-constructor  
-	*this = move(tmp);		// re-use move-assignment  
+	Painter tmp(other);	// re-use copy-constructor  
+	*this = move(tmp);	// re-use move-assignment  
 	return *this;
 }
 Painter& Painter::operator=(Painter&& other) noexcept {
 	if(this == &other)
 		return *this;
 	data = other.data;
-	other.data.reset();
 	return *this;
 }
-shared_ptr<vector<points>> Painter::getDataPointer() const { return data; }
-/*
+vector<float*> Painter::getData() const { return data; }
 void Painter::drawTriangles(float* vertices) {
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDisableVertexAttribArray(0);
-}
-*/
-void Painter::drawTriangles(initializer_list<float> vertices) {
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vector<float>(vertices).data());
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.begin(), vertices));
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
