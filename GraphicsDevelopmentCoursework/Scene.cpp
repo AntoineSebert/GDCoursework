@@ -4,8 +4,10 @@ using namespace std;
 
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width) : window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false) {
-		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization())
+		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
+			myPainter = unique_ptr<Painter>(new Painter());
+		}
 	}
 	Scene::Scene(const Scene& other) : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {}
 	Scene::Scene(Scene&& other) noexcept : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {
@@ -41,7 +43,7 @@ using namespace std;
 				mainCondition = false;
 			glClear(GL_COLOR_BUFFER_BIT);
 			//glUseProgram(shaderBasique.getProgramID());
-			//Painter::drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
+			myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
 			//glUseProgram(0);
 			SDL_GL_SwapWindow(window);
 		}
@@ -78,7 +80,6 @@ using namespace std;
 		if(openGLContext == nullptr) {
 			cout << "Error during the context creation : " << SDL_GetError() << endl;
 			SDL_DestroyWindow(window);
-			SDL_Quit();
 			return false;
 		}
 		return true;
@@ -89,7 +90,6 @@ using namespace std;
 			cout << "Error during the initialization of GLEW : " << glewGetErrorString(glew) << endl;
 			SDL_GL_DeleteContext(openGLContext);
 			SDL_DestroyWindow(window);
-			SDL_Quit();
 			return false;
 		}
 		return true;

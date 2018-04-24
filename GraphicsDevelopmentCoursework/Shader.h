@@ -29,6 +29,9 @@ class Shader {
 				// move assignment operator
 					Shader& operator=(Shader&& other) noexcept;
 			bool load();
-			bool compileShader(GLuint &shader, GLenum type, const std::string& sourceFile);
 			GLuint getProgramID() const;
+		protected:
+			bool compileShader(GLuint &shader, GLenum type, const std::string& sourceFile);
+			void displayError();
+			std::string extractFileContent(const std::string& sourceFile);
 };

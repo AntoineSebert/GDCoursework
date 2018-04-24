@@ -4,11 +4,11 @@
 #include <GL/glew.h>
 
 #include "Painter.hpp"
-#include "Shader.h"
 
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <memory.h>
 #include <string>
 
 class Scene {
@@ -19,6 +19,7 @@ class Scene {
 			SDL_Event events;
 			GLenum glew;
 			bool mainCondition;
+			std::unique_ptr<Painter> myPainter;
 	/* MEMBERS */
 		public:
 			// constructors

@@ -3,16 +3,17 @@
 #include <SDL.h>
 #include <GL/glew.h>
 
+#include "Shader.h"
+
 #include <memory>
 #include <utility>
 #include <vector>
-
-// TODO rule of zero ?
 
 class Painter {
 	/* ATTRIBUTES */
 		private:
 			std::vector<float*> data;
+			std::vector<Shader> shaders;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -23,14 +24,17 @@ class Painter {
 				// move constructor
 					Painter(Painter&& other) noexcept;
 			// destructor
-					~Painter() noexcept;
+				~Painter() noexcept;
 			// operators
 				// copy assignment operator
 					Painter& operator=(const Painter& other);
 				// move assignment operator
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
-					std::vector<float*> getData() const;
+				std::vector<float*> getData() const;
+				std::vector<Shader> getShaders() const;
 			// drawing
 				void drawTriangles(float* vertices);
+			// shaders
+				vector<Shader>::const_iterator addShader() const;
 };
