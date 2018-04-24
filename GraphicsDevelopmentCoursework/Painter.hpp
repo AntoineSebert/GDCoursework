@@ -32,5 +32,5 @@ class Painter {
 			// getters
 					std::vector<float*> getData() const;
 			// drawing
-				static void drawTriangles(float* vertices);
+				void drawTriangles(float* vertices);
 };

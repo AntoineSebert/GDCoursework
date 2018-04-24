@@ -19,7 +19,7 @@ Painter& Painter::operator=(Painter&& other) noexcept {
 }
 vector<float*> Painter::getData() const { return data; }
 void Painter::drawTriangles(float* vertices) {
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.begin(), vertices));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.end(), vertices));
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);

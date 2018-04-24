@@ -41,7 +41,7 @@ class Scene {
 		protected:
 			bool SDLInitialization();
 			void setOpenGLAttributes();
-			bool windowCreation();
+			bool windowCreation(std::string name, unsigned int height, unsigned int width);
 			bool contextCreation();
 			bool glewInitialization();
 };
