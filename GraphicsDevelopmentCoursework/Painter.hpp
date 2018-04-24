@@ -36,5 +36,5 @@ class Painter {
 			// drawing
 				void drawTriangles(float* vertices);
 			// shaders
-				vector<Shader>::const_iterator addShader() const;
+				unsigned int addShader(std::string sourceVertex, std::string sourceFragment) const;
 };

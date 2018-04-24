@@ -37,6 +37,7 @@ using namespace std;
 		Shader shaderBasique("Shaders/basic2D.vert", "Shaders/basic2D.frag");
 		shaderBasique.load();
 		*/
+		myPainter->addShader("Shaders/basic2D.vert", "Shaders/basic2D.frag");
 		while(mainCondition) {
 			SDL_WaitEvent(&events);
 			if(events.window.event == SDL_WINDOWEVENT_CLOSE)

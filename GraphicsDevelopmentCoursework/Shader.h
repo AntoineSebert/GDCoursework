@@ -15,7 +15,7 @@ class Shader {
 		public:
 			// constructors
 				// default constructor
-					Shader();
+					Shader() = delete;
 					Shader(std::string sourceVertex, std::string sourceFragment);
 				// copy constructor
 					Shader(const Shader& other);
@@ -33,5 +33,8 @@ class Shader {
 		protected:
 			bool compileShader(GLuint &shader, GLenum type, const std::string& sourceFile);
 			void displayError();
-			std::string extractFileContent(const std::string& sourceFile);
+			std::string extractFileContent(GLuint& shader, const std::string& sourceFile);
+			void cleanShader();
+			bool checkLinking();
+			bool checkCompilation(GLuint& shader);
 };

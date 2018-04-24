@@ -3,13 +3,10 @@
 using namespace std;
 
 // public
-	Shader::Shader() : vertexID(0), fragmentID(0), programID(0), vertexSource(""), fragmentSource("") {}
-	Shader::Shader(string vertexSource, string fragmentSource) : vertexID(0), fragmentID(0), programID(0), vertexSource(vertexSource), fragmentSource(fragmentSource) {}
-	Shader::Shader(const Shader& other) {
-		vertexSource = other.vertexSource;
-		fragmentSource = other.fragmentSource;
-		load();
-	}
+	Shader::Shader(string vertexSource, string fragmentSource)
+		: vertexID(0), fragmentID(0), programID(0), vertexSource(vertexSource), fragmentSource(fragmentSource) { load(); }
+	Shader::Shader(const Shader& other)
+		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) { load(); }
 	Shader::Shader(Shader&& other) noexcept
 		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) {
 		other.~Shader();
@@ -20,12 +17,7 @@ using namespace std;
 		glDeleteShader(fragmentID);
 		glDeleteProgram(programID);
 	}
-	Shader& Shader::operator=(const Shader& other) {
-		vertexSource = other.vertexSource;
-		fragmentSource = other.fragmentSource;
-		load();
-		return *this;
-	}
+	Shader& Shader::operator=(const Shader& other) { return (*this = move(Shader(other))); }
 	Shader& Shader::operator=(Shader&& other) noexcept {
 		if(this == &other)
 			return *this;
@@ -34,17 +26,12 @@ using namespace std;
 		programID = other.programID;
 		vertexSource = other.vertexSource;
 		fragmentSource = other.fragmentSource;
+		load();
 		other.~Shader();
 		return *this;
 	}
 	bool Shader::load() {
-		// destruction of a potential old shader
-		if(glIsShader(vertexID) == GL_TRUE)
-			glDeleteShader(vertexID);
-		if(glIsShader(fragmentID) == GL_TRUE)
-			glDeleteShader(fragmentID);
-		if(glIsProgram(programID) == GL_TRUE)
-			glDeleteProgram(programID);
+		cleanShader();
 		// compiling the shaders
 		if(!compileShader(vertexID, GL_VERTEX_SHADER, vertexSource))
 			return false;
@@ -61,15 +48,7 @@ using namespace std;
 		glBindAttribLocation(programID, 2, "in_TexCoord0");
 		// program linking
 		glLinkProgram(programID);
-		// checking the linking
-		GLint linkError(0);
-		glGetProgramiv(programID, GL_LINK_STATUS, &linkError);
-		if(linkError != GL_TRUE) {
-			displayError();
-			glDeleteProgram(programID);
-			return false;
-		}
-		return true;
+		return checkLinking();
 	}
 	GLuint Shader::getProgramID() const { return programID; }
 // protected
@@ -86,15 +65,7 @@ using namespace std;
 		glShaderSource(shader, 1, &chaineCodeSource, 0);
 		// compiling the shader
 		glCompileShader(shader);
-		// checking the compilation
-		GLint compilationError(0);
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationError);
-		if(compilationError != GL_TRUE) {
-			displayError();
-			glDeleteShader(shader);
-			return false;
-		}
-		return true;
+		return checkCompilation(shader);
 	}
 	void Shader::displayError() {
 		// get the error size
@@ -121,4 +92,35 @@ using namespace std;
 			sourceCode += line + '\n';
 		file.close();
 		return sourceCode;
+	}
+	void Shader::cleanShader() {
+		// destruction of a potential old shader
+		if(glIsShader(vertexID) == GL_TRUE)
+			glDeleteShader(vertexID);
+		if(glIsShader(fragmentID) == GL_TRUE)
+			glDeleteShader(fragmentID);
+		if(glIsProgram(programID) == GL_TRUE)
+			glDeleteProgram(programID);
+	}
+	bool Shader::checkLinking() {
+		// checking the linking
+		GLint linkError(0);
+		glGetProgramiv(programID, GL_LINK_STATUS, &linkError);
+		if(linkError != GL_TRUE) {
+			displayError();
+			glDeleteProgram(programID);
+			return false;
+		}
+		return true;
+	}
+	bool Shader::checkCompilation(GLuint& shader) {
+		// checking the compilation
+		GLint compilationError(0);
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationError);
+		if(compilationError != GL_TRUE) {
+			displayError();
+			glDeleteShader(shader);
+			return false;
+		}
+		return true;
 	}

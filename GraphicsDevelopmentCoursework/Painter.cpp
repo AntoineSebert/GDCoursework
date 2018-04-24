@@ -22,3 +22,7 @@ void Painter::drawTriangles(float* vertices) {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
 }
+unsigned int Painter::addShader(std::string sourceVertex, std::string sourceFragment) const {
+	//shaders.emplace_back(sourceVertex, sourceFragment);
+	return 0;
+}
