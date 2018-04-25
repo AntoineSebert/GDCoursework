@@ -2,6 +2,9 @@
 
 #include <SDL.h>
 #include <GL/glew.h>
+#include <glm.hpp>
+#include <gtx/transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include "Painter.hpp"
 
@@ -20,6 +23,7 @@ class Scene {
 			GLenum glew;
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
+			unsigned int height, width;
 	/* MEMBERS */
 		public:
 			// constructors

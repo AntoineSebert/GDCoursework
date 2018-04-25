@@ -1,16 +1,20 @@
 #include "Scene.hpp"
 
 using namespace std;
+using namespace glm;
 
 // public
-	Scene::Scene(string name, unsigned int height, unsigned int width) : window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false) {
+	Scene::Scene(string name, unsigned int height, unsigned int width)
+		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width) {
 		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
 			myPainter = unique_ptr<Painter>(new Painter());
 		}
 	}
-	Scene::Scene(const Scene& other) : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {}
-	Scene::Scene(Scene&& other) noexcept : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {
+	Scene::Scene(const Scene& other)
+		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition), height(height), width(width) {}
+	Scene::Scene(Scene&& other) noexcept
+		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition), height(height), width(width) {
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
 	}
@@ -31,19 +35,28 @@ using namespace std;
 		events = other.events;
 		glew = other.glew;
 		mainCondition = other.mainCondition;
+		this->height = height;
+		this->width = width;
 		return *this;
 	}
 	bool Scene::mainLoop() {
+		mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
+
+		// vector of shaders ?
 		auto shader = myPainter->addShader("basic2D.vert", "basic2D.frag");
+		// check shaders
 		if(shader != myPainter->end()) {
 			while(mainCondition) {
 				SDL_WaitEvent(&events);
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
+				modelview = mat4(1.0);
+				//
 				glUseProgram((*shader).get()->getProgramID());
 				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
 				glUseProgram(0);
+				//
 				SDL_GL_SwapWindow(window);
 			}
 		}
