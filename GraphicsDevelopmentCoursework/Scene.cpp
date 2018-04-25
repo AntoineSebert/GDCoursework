@@ -6,7 +6,7 @@ using namespace std;
 	Scene::Scene(string name, unsigned int height, unsigned int width) : window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false) {
 		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
-			myPainter = make_unique<Painter>(new Painter());
+			myPainter = unique_ptr<Painter>(new Painter());
 		}
 	}
 	Scene::Scene(const Scene& other) : window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew), mainCondition(other.mainCondition) {}
@@ -34,20 +34,18 @@ using namespace std;
 		return *this;
 	}
 	bool Scene::mainLoop() {
-		/*
-		Shader shaderBasique("Shaders/basic2D.vert", "Shaders/basic2D.frag");
-		shaderBasique.load();
-		*/
-		myPainter->addShader("Shaders/basic2D.vert", "Shaders/basic2D.frag");
-		while(mainCondition) {
-			SDL_WaitEvent(&events);
-			if(events.window.event == SDL_WINDOWEVENT_CLOSE)
-				mainCondition = false;
-			glClear(GL_COLOR_BUFFER_BIT);
-			//glUseProgram(shaderBasique.getProgramID());
-			myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
-			//glUseProgram(0);
-			SDL_GL_SwapWindow(window);
+		auto shaderIndex = myPainter->addShader("Shaders/basic2D.vert", "Shaders/basic2D.frag");
+		if(shaderIndex != myPainter->end()) {
+			while(mainCondition) {
+				SDL_WaitEvent(&events);
+				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
+					mainCondition = false;
+				glClear(GL_COLOR_BUFFER_BIT);
+				//glUseProgram(shaderBasique.getProgramID());
+				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
+				//glUseProgram(0);
+				SDL_GL_SwapWindow(window);
+			}
 		}
 		return false;
 	}

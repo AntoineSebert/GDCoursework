@@ -32,9 +32,9 @@ class Painter {
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
 				std::vector<float*> getData() const;
-				std::vector<std::unique_ptr<Shader>> getShaders() const;
+				std::vector<std::unique_ptr<Shader>>::const_iterator end() const;
 			// drawing
 				void drawTriangles(float* vertices);
 			// shaders
-				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment) const;
+				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
 };

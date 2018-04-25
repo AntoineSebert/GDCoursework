@@ -27,7 +27,9 @@ using namespace std;
 		vertexSource = other.vertexSource;
 		fragmentSource = other.fragmentSource;
 		load();
-		other.~Shader();
+		glDeleteShader(other.vertexID);
+		glDeleteShader(other.fragmentID);
+		glDeleteProgram(other.programID);
 		return *this;
 	}
 	bool Shader::load() {
@@ -85,7 +87,7 @@ using namespace std;
 		if(!file) {
 			cout << "Error : the file " << sourceFile << " cannot be found" << endl;
 			glDeleteShader(shader);
-			return false;
+			return "";
 		}
 		string line, sourceCode;
 		while(getline(file, line))
