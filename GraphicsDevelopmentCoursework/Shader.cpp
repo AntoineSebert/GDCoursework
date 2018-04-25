@@ -4,13 +4,14 @@ using namespace std;
 
 // public
 	Shader::Shader(string vertexSource, string fragmentSource)
-		: vertexID(0), fragmentID(0), programID(0), vertexSource(vertexSource), fragmentSource(fragmentSource) { load(); }
+		: vertexID(0), fragmentID(0), programID(0), vertexSource(vertexSource), fragmentSource(fragmentSource) {}
 	Shader::Shader(const Shader& other)
-		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) { load(); }
+		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) {}
 	Shader::Shader(Shader&& other) noexcept
 		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) {
-		other.~Shader();
-		load();
+		glDeleteShader(other.vertexID);
+		glDeleteShader(other.fragmentID);
+		glDeleteProgram(other.programID);
 	}
 	Shader::~Shader() {
 		glDeleteShader(vertexID);
@@ -26,7 +27,6 @@ using namespace std;
 		programID = other.programID;
 		vertexSource = other.vertexSource;
 		fragmentSource = other.fragmentSource;
-		load();
 		glDeleteShader(other.vertexID);
 		glDeleteShader(other.fragmentID);
 		glDeleteProgram(other.programID);
@@ -62,7 +62,9 @@ using namespace std;
 			cout << "Error : the type of shader (" << type << ") does not exist" << endl;
 			return false;
 		}
-		const GLchar* chaineCodeSource = extractFileContent(shader, sourceFile).c_str();
+		string test = extractFileContent(shader, sourceFile);
+		const char* ouput = test.c_str();
+		const GLchar* chaineCodeSource = ouput;
 		// Sending the source code to the shader
 		glShaderSource(shader, 1, &chaineCodeSource, 0);
 		// compiling the shader

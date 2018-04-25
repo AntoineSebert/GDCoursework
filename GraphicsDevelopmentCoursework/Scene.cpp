@@ -34,16 +34,16 @@ using namespace std;
 		return *this;
 	}
 	bool Scene::mainLoop() {
-		auto shaderIndex = myPainter->addShader("Shaders/basic2D.vert", "Shaders/basic2D.frag");
-		if(shaderIndex != myPainter->end()) {
+		auto shader = myPainter->addShader("basic2D.vert", "basic2D.frag");
+		if(shader != myPainter->end()) {
 			while(mainCondition) {
 				SDL_WaitEvent(&events);
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
-				//glUseProgram(shaderBasique.getProgramID());
+				glUseProgram((*shader).get()->getProgramID());
 				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
-				//glUseProgram(0);
+				glUseProgram(0);
 				SDL_GL_SwapWindow(window);
 			}
 		}
