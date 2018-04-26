@@ -42,21 +42,19 @@ using namespace glm;
 	bool Scene::mainLoop() {
 		mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
 
-		// vector of shaders ?
-		auto shader = myPainter->addShader("basic2D.vert", "basic2D.frag");
-		// check shaders
+		auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 		if(shader != myPainter->end()) {
 			while(mainCondition) {
 				SDL_WaitEvent(&events);
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
-				modelview = mat4(1.0);
 				//
 				glUseProgram((*shader).get()->getProgramID());
 				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
 				glUseProgram(0);
 				//
+				modelview = mat4(1.0);
 				SDL_GL_SwapWindow(window);
 			}
 		}
@@ -71,7 +69,7 @@ using namespace glm;
 		}
 		return true;
 	}
-	bool Scene::windowCreation(string name, unsigned int height, unsigned int width) {
+	bool Scene::windowCreation(string name, unsigned int newHeight, unsigned int newWidth) {
 		setOpenGLAttributes();
 		window = SDL_CreateWindow(
 			name.c_str(),

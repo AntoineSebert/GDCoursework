@@ -14,6 +14,7 @@ class Painter {
 		private:
 			std::vector<float*> data;
 			std::vector<std::unique_ptr<Shader>> shaders;
+			const static std::string shadersPath;
 	/* MEMBERS */
 		public:
 			// constructors

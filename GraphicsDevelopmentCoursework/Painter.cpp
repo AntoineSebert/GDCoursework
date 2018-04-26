@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const string Painter::shadersPath = "../parts/Shaders/";
+
 Painter::Painter() {}
 Painter::Painter(const Painter& other) : data(other.data) {
 	shaders.clear();
@@ -33,7 +35,7 @@ void Painter::drawTriangles(float* vertices) {
 	glDisableVertexAttribArray(0);
 }
 vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string sourceVertex, std::string sourceFragment) {
-	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(sourceVertex, sourceFragment));
+	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
 	if(myShader->load()) {
 		shaders.push_back(move(myShader));
 		return --shaders.end();

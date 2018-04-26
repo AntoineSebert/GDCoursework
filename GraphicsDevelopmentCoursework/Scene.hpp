@@ -2,9 +2,9 @@
 
 #include <SDL.h>
 #include <GL/glew.h>
-#include <glm.hpp>
-#include <gtx/transform.hpp>
-#include <gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Painter.hpp"
 
@@ -46,7 +46,7 @@ class Scene {
 		protected:
 			bool SDLInitialization();
 			void setOpenGLAttributes();
-			bool windowCreation(std::string name, unsigned int height, unsigned int width);
+			bool windowCreation(std::string name, unsigned int newHeight, unsigned int newWidth);
 			bool contextCreation();
 			bool glewInitialization();
 };
