@@ -69,7 +69,7 @@ void Painter::useVertices(unsigned int index) {
 	++vertexAttribArrays;
 }
 void Painter::drawVertices(unsigned int index) {
-	glDrawArrays(GL_TRIANGLES, 0, 18);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 void Painter::disableVertexAttribArrays() {
 	for(unsigned int i = 0; i < vertexAttribArrays - 1; ++i)

@@ -133,6 +133,7 @@
     <ClInclude Include="Painter.hpp" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="utility.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

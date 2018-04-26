@@ -33,7 +33,6 @@ class Shader {
 		protected:
 			bool compileShader(GLuint &shader, GLenum type, const std::string& sourceFile);
 			void displayError();
-			std::string extractFileContent(GLuint& shader, const std::string& sourceFile);
 			void cleanShader();
 			bool checkLinking();
 			bool checkCompilation(GLuint& shader);

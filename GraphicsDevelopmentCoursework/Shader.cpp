@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -62,9 +63,13 @@ using namespace std;
 			cout << "Error : the type of shader (" << type << ") does not exist" << endl;
 			return false;
 		}
-		string test = extractFileContent(shader, sourceFile);
-		const char* ouput = test.c_str();
-		const GLchar* chaineCodeSource = ouput;
+		string test = extractFileContent(sourceFile);
+		if(test.empty()) {
+			glDeleteShader(shader);
+			return false;
+		}
+		const char* output = test.c_str();
+		const GLchar* chaineCodeSource = output;
 		// Sending the source code to the shader
 		glShaderSource(shader, 1, &chaineCodeSource, 0);
 		// compiling the shader
@@ -83,19 +88,6 @@ using namespace std;
 		// displaying the error
 		cout << error << endl;
 		delete[] error;
-	}
-	std::string Shader::extractFileContent(GLuint& shader, const string& sourceFile) {
-		ifstream file(sourceFile);
-		if(!file) {
-			cout << "Error : the file " << sourceFile << " cannot be found" << endl;
-			glDeleteShader(shader);
-			return "";
-		}
-		string line, sourceCode;
-		while(getline(file, line))
-			sourceCode += line + '\n';
-		file.close();
-		return sourceCode;
 	}
 	void Shader::cleanShader() {
 		// destruction of a potential old shader
