@@ -61,22 +61,28 @@ using namespace glm;
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
 				modelview = mat4(1.0);
+				modelview = lookAt(vec3(1, 1, 1), vec3(0, 0, 0), vec3(0, 1, 0));
 				glUseProgram(shader->get()->getProgramID()); // send shader to graphic card
 				{
 					myPainter->useColor(multicolor); // send color to shader
-					myPainter->useVertices(triangle);
+					myPainter->useVertices(triangle); // send vertices to shader
+
+					//modelview = rotate(modelview, 60.0f, vec3(0.0, 0.0, 1.0));
+
 					glUniformMatrix4fv(
 						glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
 					);
 					glUniformMatrix4fv(
 						glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
 					);
-					myPainter->drawVertices(triangle); // send vertices to shader
-					glUseProgram(0);
+
+					myPainter->drawVertices(triangle);
+					myPainter->disableVertexAttribArrays();
+
 				}
+				glUseProgram(0);
 				SDL_GL_SwapWindow(window);
 			}
-			myPainter->disableVertexAttribArrays();
 		}
 		return false;
 	}
