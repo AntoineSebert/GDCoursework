@@ -46,7 +46,7 @@ using namespace glm;
 			mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
 		// colors
 			createPalette();
-		// 3D objects
+		// objects
 			unsigned int triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
 			square = myPainter->addVertices(vector<float>({
 				-1.0, -1.0, -1.0,	1.0, -1.0, -1.0,	1.0, 1.0, -1.0,
@@ -66,6 +66,10 @@ using namespace glm;
 				-1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0,
 				-1.0, 1.0, 1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0
 			}));
+			string chair = extractFileContent("C:/temp/chair.txt"),
+				fan = extractFileContent("C:/temp/fan.txt"),
+				floor = extractFileContent("C:/temp/floor.txt"),
+				table = extractFileContent("C:/temp/table.txt");
 		// shader
 			int shader = myPainter->addShader("color3D.vert", "color3D.frag");
 

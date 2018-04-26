@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include "utility.hpp"
+
 #include <iostream>
 #include <string>
 #include <fstream>

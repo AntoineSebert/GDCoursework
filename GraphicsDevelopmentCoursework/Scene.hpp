@@ -8,6 +8,7 @@
 #include <glm/ext.hpp>
 
 #include "Painter.hpp"
+#include "utility.hpp"
 
 #include <algorithm>
 #include <iostream>
