@@ -85,6 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\i\Desktop\GraphicsDevelopmentCoursework\glm;C:\Users\i\Desktop\GraphicsDevelopmentCoursework\glew\include;C:\Users\i\Desktop\GraphicsDevelopmentCoursework\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\i\Desktop\GraphicsDevelopmentCoursework\glew\lib\Release\x64;C:\Users\i\Desktop\GraphicsDevelopmentCoursework\SDL2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

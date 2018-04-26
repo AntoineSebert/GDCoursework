@@ -65,6 +65,7 @@ using namespace glm;
 				myPainter->useColor(multicolor); // send colors
 				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview));
 				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection));
+				myPainter->disableVertexAttribArrays();
 				glUseProgram(0);
 				//
 				modelview = mat4(1.0);

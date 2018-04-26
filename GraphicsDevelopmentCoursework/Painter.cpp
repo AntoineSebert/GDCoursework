@@ -31,14 +31,15 @@ vector<float*> Painter::getData() const { return data; }
 vector<unique_ptr<Shader>>::const_iterator Painter::shadersEnd() const { return shaders.end(); }
 vector<float*>::const_iterator Painter::colorsEnd() const { return colors.end(); }
 void Painter::drawTriangles(float* vertices) {
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.end(), vertices));
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(--data.end() - data.begin(), 2, GL_FLOAT, GL_FALSE, 0, *data.insert(data.end(), vertices));
+	glEnableVertexAttribArray(vertexAttribArrays);
+	++vertexAttribArrays;
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDisableVertexAttribArray(0);
 }
 void Painter::useColor(vector<float*>::const_iterator color) {
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, *color);
-	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(vertexAttribArrays, 3, GL_FLOAT, GL_FALSE, 0, *color);
+	glEnableVertexAttribArray(vertexAttribArrays);
+	++vertexAttribArrays;
 }
 vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string sourceVertex, std::string sourceFragment) {
 	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
@@ -49,3 +50,7 @@ vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string source
 	return shaders.end();
 }
 vector<float*>::const_iterator Painter::addColor(float* color) { return colors.insert(colors.begin(), color); }
+void Painter::disableVertexAttribArrays() {
+	for(unsigned int i = 0; i < vertexAttribArrays - 1; ++i)
+		glDisableVertexAttribArray(i);
+}
