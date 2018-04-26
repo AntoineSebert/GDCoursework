@@ -52,6 +52,7 @@ using namespace glm;
 			0.0, 1.0, 0.0,
 			0.0, 0.0, 1.0
 		}).data());
+		auto triangle = myPainter->addVertices(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
 
 		if(shader != myPainter->shadersEnd()) {
 			while(mainCondition) {
@@ -59,16 +60,20 @@ using namespace glm;
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
-				//
-				glUseProgram(shader->get()->getProgramID()); // send shader to graphic card
-				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data()); // send vertices
-				myPainter->useColor(multicolor); // send colors
-				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview));
-				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection));
-				myPainter->disableVertexAttribArrays();
-				glUseProgram(0);
-				//
 				modelview = mat4(1.0);
+				glUseProgram(shader->get()->getProgramID()); // send shader to graphic card
+				{
+					myPainter->drawVertices(triangle); // send vertices to shader
+					myPainter->useColor(multicolor); // send color to shader
+					glUniformMatrix4fv(
+						glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+					);
+					glUniformMatrix4fv(
+						glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
+					);
+					myPainter->disableVertexAttribArrays();
+					glUseProgram(0);
+				}
 				SDL_GL_SwapWindow(window);
 			}
 		}

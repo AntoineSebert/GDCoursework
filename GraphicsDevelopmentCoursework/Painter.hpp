@@ -16,7 +16,7 @@ class Painter {
 			std::vector<float*> colors;
 			std::vector<std::unique_ptr<Shader>> shaders;
 			const static std::string shadersPath;
-			static unsigned int vertexAttribArrays;
+			unsigned int vertexAttribArrays;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -38,7 +38,8 @@ class Painter {
 				std::vector<std::unique_ptr<Shader>>::const_iterator shadersEnd() const;
 				std::vector<float*>::const_iterator colorsEnd() const;
 			// drawing
-				void drawTriangles(float* vertices);
+				std::vector<float*>::const_iterator addVertices(float* vertices);
+				void drawVertices(std::vector<float*>::const_iterator vertices);
 				void useColor(std::vector<float*>::const_iterator color);
 				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
 				std::vector<float*>::const_iterator addColor(float* color);
