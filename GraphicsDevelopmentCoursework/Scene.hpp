@@ -10,10 +10,10 @@
 #include "Painter.hpp"
 
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <memory.h>
 #include <string>
+#include <vector>
 
 class Scene {
 	/* ATTRIBUTES */

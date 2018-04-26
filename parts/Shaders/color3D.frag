@@ -2,7 +2,7 @@
 #version 150 core
 // shader input
 in vec3 color;
-// ouput
+// output
 out vec4 out_Color;
 void main() {
 	// final color of the pixel

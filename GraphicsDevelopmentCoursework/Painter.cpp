@@ -28,13 +28,11 @@ Painter& Painter::operator=(Painter&& other) noexcept {
 		shaders.emplace_back(element.get());
 	return *this;
 }
-vector<float*> Painter::getData() const { return data; }
+vector<std::vector<float>> Painter::getData() const { return data; }
 vector<unique_ptr<Shader>>::const_iterator Painter::shadersEnd() const { return shaders.end(); }
-vector<float*>::const_iterator Painter::colorsEnd() const { return colors.end(); }
-std::vector<float*>::const_iterator Painter::addVertices(float* vertices) {
-	return data.insert(data.end(), vertices);
-}
-vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string sourceVertex, std::string sourceFragment) {
+vector<std::vector<float>>::const_iterator Painter::colorsEnd() const { return colors.end(); }
+vector<std::vector<float>>::const_iterator Painter::addVertices(std::vector<float> vertices) { return data.insert(data.end(), vertices); }
+vector<unique_ptr<Shader>>::const_iterator Painter::addShader(string sourceVertex, string sourceFragment) {
 	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
 	if(myShader->load()) {
 		shaders.push_back(move(myShader));
@@ -42,19 +40,19 @@ vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string source
 	}
 	return shaders.end();
 }
-vector<float*>::const_iterator Painter::addColor(float* color) { return colors.insert(colors.begin(), color); }
-void Painter::useColor(vector<float*>::const_iterator color) {
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, *color);
+vector<std::vector<float>>::const_iterator Painter::addColor(std::vector<float> color) { return colors.insert(colors.begin(), color); }
+void Painter::useColor(vector<std::vector<float>>::const_iterator color) {
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, color->data());
 	glEnableVertexAttribArray(1);
 	++vertexAttribArrays;
 }
-void Painter::useVertices(std::vector<float*>::const_iterator vertices) {
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, *vertices);
+void Painter::useVertices(vector<std::vector<float>>::const_iterator vertices) {
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices->data());
 	glEnableVertexAttribArray(0);
 	++vertexAttribArrays;
 }
-void Painter::drawVertices(std::vector<float*>::const_iterator vertices) {
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+void Painter::drawVertices(vector<std::vector<float>>::const_iterator vertices) {
+	glDrawArrays(GL_TRIANGLES, 0, vertices->size() / 2);
 }
 void Painter::disableVertexAttribArrays() {
 	for(unsigned int i = 0; i < vertexAttribArrays - 1; ++i)

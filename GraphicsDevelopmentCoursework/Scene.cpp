@@ -40,19 +40,31 @@ using namespace glm;
 		return *this;
 	}
 	bool Scene::mainLoop() {
-		mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
-		auto shader = myPainter->addShader("color2D.vert", "color2D.frag");
-		auto blue = myPainter->addColor(array<float, 9>({
-			0.0, (float)(204.0 / 255.0), 1.0,
-			0.0, (float)(204.0 / 255.0), 1.0,
-			0.0, (float)(204.0 / 255.0), 1.0
-		}).data());
-		auto multicolor = myPainter->addColor(array<float, 9>({
-			1.0, 0.0, 0.0,
-			0.0, 1.0, 0.0,
-			0.0, 0.0, 1.0
-		}).data());
-		auto triangle = myPainter->addVertices(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
+		// matrix
+			mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
+		// colors
+			auto blue = myPainter->addColor(vector<float>({
+				0.0, (float)(204.0 / 255.0), 1.0,
+				0.0, (float)(204.0 / 255.0), 1.0,
+				0.0, (float)(204.0 / 255.0), 1.0
+			})),
+			multicolor = myPainter->addColor(vector<float>({
+				1.0, 0.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 0.0, 1.0
+			}))/*,
+			red = myPainter->addColor(array<float, 18>({
+				-1.0, -1.0, -1.0,	1.0, -1.0, -1.0,	1.0, 1.0, -1.0,
+				-1.0, -1.0, -1.0,	-1.0, 1.0, -1.0,	1.0, 1.0, -1.0
+			}).data())*/;
+		// 3D objects
+			auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
+			square = myPainter->addVertices(vector<float>({
+				-1.0, -1.0, -1.0,	1.0, -1.0, -1.0,	1.0, 1.0, -1.0,
+				-1.0, -1.0, -1.0,	-1.0, 1.0, -1.0,	1.0, 1.0, -1.0
+			}));
+		// shader
+			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 
 		if(shader != myPainter->shadersEnd()) {
 			while(mainCondition) {
@@ -60,23 +72,19 @@ using namespace glm;
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
-				modelview = mat4(1.0);
-				modelview = lookAt(vec3(1, 1, 1), vec3(0, 0, 0), vec3(0, 1, 0));
+				modelview = lookAt(vec3(0, 0, 1), vec3(0, 0, 0), vec3(0, 1, 0));
 				glUseProgram(shader->get()->getProgramID()); // send shader to graphic card
 				{
-					myPainter->useColor(multicolor); // send color to shader
-					myPainter->useVertices(triangle); // send vertices to shader
-
-					//modelview = rotate(modelview, 60.0f, vec3(0.0, 0.0, 1.0));
-
-					glUniformMatrix4fv(
-						glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
-					);
+					myPainter->useColor(multicolor);	// send color to shader
+					myPainter->useVertices(square);	// send vertices to shader
 					glUniformMatrix4fv(
 						glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
 					);
+					glUniformMatrix4fv(
+						glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+					);
 
-					myPainter->drawVertices(triangle);
+					myPainter->drawVertices(square);
 					myPainter->disableVertexAttribArrays();
 
 				}
