@@ -56,7 +56,9 @@ using namespace glm;
 				-1.0, -1.0, -1.0,   1.0, -1.0, -1.0,   1.0, 1.0, -1.0,
 				-1.0, -1.0, -1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0,
 				1.0, -1.0, 1.0,   1.0, -1.0, -1.0,   1.0, 1.0, -1.0,
-				1.0, -1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0
+				1.0, -1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0,
+				-1.0, -1.0, 1.0,   1.0, -1.0, 1.0,   1.0, -1.0, -1.0,
+				-1.0, -1.0, 1.0,   -1.0, -1.0, -1.0,   1.0, -1.0, -1.0
 			}));
 		// shader
 			int shader = myPainter->addShader("color3D.vert", "color3D.frag");
@@ -66,7 +68,7 @@ using namespace glm;
 				SDL_WaitEvent(&events);
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
-				glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				modelview = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
 				glUseProgram(myPainter->getShader(shader)->getProgramID()); // send shader to graphic card
 				{
@@ -166,6 +168,7 @@ using namespace glm;
 			SDL_DestroyWindow(window);
 			return false;
 		}
+		glEnable(GL_DEPTH_TEST); // depth buffer
 		return true;
 	}
 	void Scene::createPalette() {
@@ -183,7 +186,9 @@ using namespace glm;
 			1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 			0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-			0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0
+			0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
+			0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,
+			0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0
 		}));
 	}
 	void Scene::setOpenGLAttributes() {
