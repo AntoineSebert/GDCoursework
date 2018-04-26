@@ -207,6 +207,18 @@ using namespace glm;
 			0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0
 		}));
 	}
+	vector<float> Scene::import3DSMaxFile(std::string filename) {
+		string content = extractFileContent("C:/temp/" + filename);
+		string tagToFind = "*MESH_NUMVERTEX";
+		unsigned int startPos = content.find(tagToFind) + tagToFind.size() + 1;
+		string buf;
+		//while(content.at(startPos)) // is number
+		vector<float> vertices;
+		//
+
+		//
+		return vertices;
+	}
 	void Scene::setOpenGLAttributes() {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);

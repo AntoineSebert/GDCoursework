@@ -52,5 +52,6 @@ class Scene {
 			bool contextCreation();
 			bool glewInitialization();
 			void createPalette();
+			std::vector<float> import3DSMaxFile(std::string filename);
 };
 
