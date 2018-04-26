@@ -5,18 +5,21 @@
 
 #include "Shader.h"
 
+#include <algorithm>
+#include <map>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 class Painter {
 	/* ATTRIBUTES */
 		private:
-			std::vector<std::vector<float>> data;
-			std::vector<std::vector<float>> colors;
+			std::vector<std::vector<float>> verticesContainer;
 			std::vector<std::unique_ptr<Shader>> shaders;
 			const static std::string shadersPath;
 			unsigned int vertexAttribArrays;
+			std::map<std::string, std::vector<float>> palette;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -35,17 +38,21 @@ class Painter {
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
 				std::vector<std::vector<float>> getData() const;
-				std::vector<std::unique_ptr<Shader>>::const_iterator shadersEnd() const;
-				std::vector<std::vector<float>>::const_iterator colorsEnd() const;
+				std::vector<float> getColor(std::string colorName) const;
+				std::unique_ptr<Shader>& getShader(unsigned int index);
+				// the return type is `size_t`, because `unsigned int` may not be suficient to store container size
+				size_t getShadersSize() const noexcept;
+				//std::vector<float> getVertices() const;
 			// adding to object
-				std::vector<std::vector<float>>::const_iterator addVertices(std::vector<float> vertices);
-				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
-				std::vector<std::vector<float>>::const_iterator addColor(std::vector<float> color);
+				// using `unsigned int` instead of `const_iterators` because pointers/iterators can be invalidated during the execution
+				unsigned int addVertices(std::vector<float> vertices);
+				int addShader(std::string sourceVertex, std::string sourceFragment);
+				bool addColor(std::string name, std::vector<float> color);
 			// creating vertexattribarrays
-				void useColor(std::vector<std::vector<float>>::const_iterator color);
-				void useVertices(std::vector<std::vector<float>>::const_iterator vertices);
+				void useColor(std::string name);
+				void useVertices(unsigned int index);
 			// draw vertices
-				void drawVertices(std::vector<std::vector<float>>::const_iterator vertices);
+				void drawVertices(unsigned int index); // the parameter is not used for we actually draw only one element
 			// cleaning
 				void disableVertexAttribArrays();
 };

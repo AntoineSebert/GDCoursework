@@ -11,7 +11,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <memory.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -50,5 +50,6 @@ class Scene {
 			bool windowCreation(std::string name, unsigned int newHeight, unsigned int newWidth);
 			bool contextCreation();
 			bool glewInitialization();
+			void createPalette();
 };
 
