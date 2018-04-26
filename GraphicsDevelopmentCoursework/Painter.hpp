@@ -13,6 +13,7 @@ class Painter {
 	/* ATTRIBUTES */
 		private:
 			std::vector<float*> data;
+			std::vector<float*> colors;
 			std::vector<std::unique_ptr<Shader>> shaders;
 			const static std::string shadersPath;
 	/* MEMBERS */
@@ -36,6 +37,6 @@ class Painter {
 				std::vector<std::unique_ptr<Shader>>::const_iterator end() const;
 			// drawing
 				void drawTriangles(float* vertices);
-			// shaders
+				void useColor(float* color);
 				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
 };

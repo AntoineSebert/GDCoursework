@@ -34,6 +34,10 @@ void Painter::drawTriangles(float* vertices) {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
 }
+void Painter::useColor(float* color) {
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, color);
+	glEnableVertexAttribArray(1);
+}
 vector<unique_ptr<Shader>>::const_iterator Painter::addShader(std::string sourceVertex, std::string sourceFragment) {
 	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
 	if(myShader->load()) {

@@ -42,7 +42,7 @@ using namespace glm;
 	bool Scene::mainLoop() {
 		mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
 
-		auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
+		auto shader = myPainter->addShader("color2D.vert", "color2D.frag");
 		if(shader != myPainter->end()) {
 			while(mainCondition) {
 				SDL_WaitEvent(&events);
@@ -51,6 +51,11 @@ using namespace glm;
 				glClear(GL_COLOR_BUFFER_BIT);
 				//
 				glUseProgram((*shader).get()->getProgramID());
+				myPainter->useColor(array<float, 9>({
+					(float)0.0, (float)(204.0 / 255.0), (float)1.0,
+					(float)0.0, (float)(204.0 / 255.0), (float)1.0,
+					(float)0.0, (float)(204.0 / 255.0), (float)1.0
+				}).data());
 				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
 				glUseProgram(0);
 				//
