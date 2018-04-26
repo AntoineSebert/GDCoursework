@@ -37,11 +37,15 @@ class Painter {
 				std::vector<float*> getData() const;
 				std::vector<std::unique_ptr<Shader>>::const_iterator shadersEnd() const;
 				std::vector<float*>::const_iterator colorsEnd() const;
-			// drawing
+			// adding to object
 				std::vector<float*>::const_iterator addVertices(float* vertices);
-				void drawVertices(std::vector<float*>::const_iterator vertices);
-				void useColor(std::vector<float*>::const_iterator color);
 				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
 				std::vector<float*>::const_iterator addColor(float* color);
+			// creating vertexattribarrays
+				void useColor(std::vector<float*>::const_iterator color);
+				void useVertices(std::vector<float*>::const_iterator vertices);
+			// draw vertices
+				void drawVertices(std::vector<float*>::const_iterator vertices);
+			// cleaning
 				void disableVertexAttribArrays();
 };
