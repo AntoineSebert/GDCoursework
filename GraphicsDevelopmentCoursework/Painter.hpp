@@ -34,9 +34,11 @@ class Painter {
 					Painter& operator=(Painter&& other) noexcept;
 			// getters
 				std::vector<float*> getData() const;
-				std::vector<std::unique_ptr<Shader>>::const_iterator end() const;
+				std::vector<std::unique_ptr<Shader>>::const_iterator shadersEnd() const;
+				std::vector<float*>::const_iterator colorsEnd() const;
 			// drawing
 				void drawTriangles(float* vertices);
-				void useColor(float* color);
+				void useColor(std::vector<float*>::const_iterator color);
 				std::vector<std::unique_ptr<Shader>>::const_iterator addShader(std::string sourceVertex, std::string sourceFragment);
+				std::vector<float*>::const_iterator addColor(float* color);
 };

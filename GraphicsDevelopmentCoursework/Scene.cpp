@@ -41,22 +41,30 @@ using namespace glm;
 	}
 	bool Scene::mainLoop() {
 		mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
-
 		auto shader = myPainter->addShader("color2D.vert", "color2D.frag");
-		if(shader != myPainter->end()) {
+		auto blue = myPainter->addColor(array<float, 9>({
+			(float)0.0, (float)(204.0 / 255.0), (float)1.0,
+			(float)0.0, (float)(204.0 / 255.0), (float)1.0,
+			(float)0.0, (float)(204.0 / 255.0), 1.0
+		}).data());
+		auto multicolor = myPainter->addColor(array<float, 9>({
+			1.0, 0.0, 0.0,
+			0.0, 1.0, 0.0,
+			0.0, 0.0, 1.0
+		}).data());
+
+		if(shader != myPainter->shadersEnd()) {
 			while(mainCondition) {
 				SDL_WaitEvent(&events);
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
 					mainCondition = false;
 				glClear(GL_COLOR_BUFFER_BIT);
 				//
-				glUseProgram((*shader).get()->getProgramID());
-				myPainter->useColor(array<float, 9>({
-					(float)0.0, (float)(204.0 / 255.0), (float)1.0,
-					(float)0.0, (float)(204.0 / 255.0), (float)1.0,
-					(float)0.0, (float)(204.0 / 255.0), (float)1.0
-				}).data());
-				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data());
+				glUseProgram(shader->get()->getProgramID()); // send shader to graphic card
+				myPainter->drawTriangles(array<float, 6>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 }).data()); // send vertices
+				myPainter->useColor(multicolor); // send colors
+				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview));
+				glUniformMatrix4fv(glGetUniformLocation(shader->get()->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection));
 				glUseProgram(0);
 				//
 				modelview = mat4(1.0);
@@ -89,6 +97,8 @@ using namespace glm;
 			SDL_Quit();
 			return false;
 		}
+		height = newHeight;
+		width = newWidth;
 		return true;
 	}
 	bool Scene::contextCreation() {
