@@ -53,18 +53,18 @@ using namespace glm;
 				-1.0, -1.0, -1.0,	-1.0, 1.0, -1.0,	1.0, 1.0, -1.0
 			})),
 			cube = myPainter->addVertices(vector<float>({
-				-1.0, -1.0, -1.0,   1.0, -1.0, -1.0,   1.0, 1.0, -1.0,
-				-1.0, -1.0, -1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0,
-				1.0, -1.0, 1.0,   1.0, -1.0, -1.0,   1.0, 1.0, -1.0,
-				1.0, -1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0,
-				-1.0, -1.0, 1.0,   1.0, -1.0, 1.0,   1.0, -1.0, -1.0,
-				-1.0, -1.0, 1.0,   -1.0, -1.0, -1.0,   1.0, -1.0, -1.0,
-				-1.0, -1.0, 1.0,   1.0, -1.0, 1.0,   1.0, 1.0, 1.0,
-				-1.0, -1.0, 1.0,   -1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
-				-1.0, -1.0, -1.0,   -1.0, -1.0, 1.0,   -1.0, 1.0, 1.0,
-				-1.0, -1.0, -1.0,   -1.0, 1.0, -1.0,   -1.0, 1.0, 1.0,
-				-1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0,
-				-1.0, 1.0, 1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0
+				-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
+				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
+				 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
+				 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
+				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,
+				-1.0, -1.0,  1.0,	-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,
+				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,
+				-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,
+				-1.0, -1.0, -1.0,	-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,
+				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	-1.0,  1.0,  1.0,
+				-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
+				-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
 			}));
 			/*
 			string chair = extractFileContent("C:/temp/chair.txt"),
@@ -77,26 +77,33 @@ using namespace glm;
 
 		if(shader != -1) {
 			while(mainCondition) {
+				// reduce processor consumption
 				SDL_Delay(20);
-				SDL_PollEvent(&events);
-				eventshandler();
+				// handle events
+				eventsHandler();
+				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				// set camera position
 				modelview = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
-				glUseProgram(myPainter->getShader(shader)->getProgramID()); // send shader to graphic card
+				// send shader to graphic card
+				glUseProgram(myPainter->getShader(shader)->getProgramID());
 				{
-					myPainter->useColor("cubeColor2");	// send color to shader
-					myPainter->useVertices(cube);		// send vertices to shader
-
+					// create vertexAttribArrays for color & vertices
+					myPainter->useColor("cubeColor2");
+					myPainter->useVertices(cube);
+					// sending the matrices
 					glUniformMatrix4fv(
 						glGetUniformLocation(myPainter->getShader(shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
 					);
 					glUniformMatrix4fv(
 						glGetUniformLocation(myPainter->getShader(shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
 					);
-
+					// send vertices and colors to the shader
 					myPainter->drawVertices(cube);
+					// a bit of cleaning
 					myPainter->disableVertexAttribArrays();
 				}
+				// disable shader
 				glUseProgram(0);
 				SDL_GL_SwapWindow(window);
 			}
@@ -195,7 +202,10 @@ using namespace glm;
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
-	void Scene::eventshandler() {
+	void Scene::eventsHandler() {
+		// async events catcher
+		SDL_PollEvent(&events);
+		// find key pressed
 		switch(events.type) {
 			case SDL_WINDOWEVENT:
 				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -214,6 +224,12 @@ using namespace glm;
 						break;
 					case SDLK_KP_4:
 						cout << "4" << endl;
+						break;
+					case SDLK_s:
+						cout << "s" << endl;
+						break;
+					case SDLK_d:
+						cout << "d" << endl;
 						break;
 				}
 				break;
