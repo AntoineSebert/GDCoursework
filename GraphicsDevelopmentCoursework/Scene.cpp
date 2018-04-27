@@ -231,6 +231,26 @@ using namespace glm;
 					case SDLK_d:
 						cout << "d" << endl;
 						break;
+					case SDLK_z:
+						cout << "z" << endl;
+						break;
+						/*
+					case SDLK_z:
+						cout << "Z" << endl;
+						break;
+						*/
+					case SDLK_t:
+						cout << "t" << endl;
+						break;
+					case SDLK_r:
+						cout << "r" << endl;
+						break;
+					case SDLK_b:
+						cout << "b" << endl;
+						break;
+					case SDLK_f:
+						cout << "f" << endl;
+						break;
 				}
 				break;
 		}
