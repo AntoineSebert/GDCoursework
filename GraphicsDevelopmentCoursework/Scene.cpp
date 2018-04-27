@@ -99,38 +99,6 @@ using namespace glm;
 				SDL_GL_SwapWindow(window);
 			}
 		}
-		/*
-		bool terminer(false);
-		mat4 projection, modelview;
-		projection = perspective(70.0, (double)width / height, 1.0, 100.0);
-		modelview = mat4(1.0);
-		float vertices[] = { -1.0, -1.0, -1.0,   1.0, -1.0, -1.0,   1.0, 1.0, -1.0,
-			-1.0, -1.0, -1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0 };
-		float couleurs[] = { 1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
-			1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0 };
-		Shader shaderCouleur("../parts/Shaders/color3D.vert", "../parts/Shaders/color3D.frag");
-		shaderCouleur.load();
-		while(!terminer) {
-			SDL_WaitEvent(&events);
-			if(events.window.event == SDL_WINDOWEVENT_CLOSE)
-				terminer = true;
-			glClear(GL_COLOR_BUFFER_BIT);
-			modelview = lookAt(vec3(0, 0, 1), vec3(0, 0, 0), vec3(0, 1, 0));
-			glUseProgram(shaderCouleur.getProgramID());
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, couleurs);
-			glEnableVertexAttribArray(1);
-			glUniformMatrix4fv(glGetUniformLocation(shaderCouleur.getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection));
-			glUniformMatrix4fv(glGetUniformLocation(shaderCouleur.getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
-			glUseProgram(0);
-			SDL_GL_SwapWindow(window);
-
-		}
-		*/
 		return false;
 	}
 // protected

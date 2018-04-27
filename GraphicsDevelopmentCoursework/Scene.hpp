@@ -7,11 +7,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 
+#include "Object.h"
 #include "Painter.hpp"
 #include "utility.hpp"
 
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,6 +28,7 @@ class Scene {
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
 			unsigned int height, width;
+			// std::map<std::string, Object> availableObjects;
 	/* MEMBERS */
 		public:
 			// constructors
