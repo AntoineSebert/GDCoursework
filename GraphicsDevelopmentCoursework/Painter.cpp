@@ -68,16 +68,6 @@ void Painter::useVertices(unsigned int index) {
 	glEnableVertexAttribArray(vertexAttribArrays);
 	++vertexAttribArrays;
 }
-void Painter::useColor(std::vector<float> colors) {
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors.data());
-	glEnableVertexAttribArray(1);
-	++vertexAttribArrays;
-}
-void Painter::useVertices(std::vector<float> vertices) {
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices.data());
-	glEnableVertexAttribArray(0);
-	++vertexAttribArrays;
-}
 void Painter::drawVertices(unsigned int index) {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
