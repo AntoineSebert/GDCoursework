@@ -13,8 +13,10 @@
 
 #include <algorithm>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -28,7 +30,7 @@ class Scene {
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
 			unsigned int height, width;
-			// std::map<std::string, Object> availableObjects;
+			std::map<std::string, Object> availableObjects;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -49,12 +51,16 @@ class Scene {
 			// program loop
 				bool mainLoop();
 		protected:
-			bool SDLInitialization();
-			void setOpenGLAttributes();
-			bool windowCreation(std::string name, unsigned int newHeight, unsigned int newWidth);
-			bool contextCreation();
-			bool glewInitialization();
-			void createPalette();
-			std::vector<float> import3DSMaxFile(std::string filename);
-			void eventsHandler();
+			// initializations
+				bool SDLInitialization();
+				void setOpenGLAttributes();
+				bool windowCreation(std::string name, unsigned int newHeight, unsigned int newWidth);
+				bool contextCreation();
+				bool glewInitialization();
+			// set up colors and objects
+				void createPalette();
+				void createObjects();
+			// other
+				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
+				void eventsHandler();
 };

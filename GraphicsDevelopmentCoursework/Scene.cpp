@@ -13,10 +13,10 @@ using namespace glm;
 	}
 	Scene::Scene(const Scene& other)
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width) {}
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {}
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width) {
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
 	}
@@ -39,6 +39,7 @@ using namespace glm;
 		mainCondition = other.mainCondition;
 		height = other.height;
 		width = other.width;
+		availableObjects = other.availableObjects;
 		return *this;
 	}
 	bool Scene::mainLoop() {
@@ -47,31 +48,9 @@ using namespace glm;
 		// colors
 			createPalette();
 		// objects
+			createObjects();
 			unsigned int triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
-			square = myPainter->addVertices(vector<float>({
-				-1.0, -1.0, -1.0,	1.0, -1.0, -1.0,	1.0, 1.0, -1.0,
-				-1.0, -1.0, -1.0,	-1.0, 1.0, -1.0,	1.0, 1.0, -1.0
-			})),
-			cube = myPainter->addVertices(vector<float>({
-				-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
-				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
-				 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
-				 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
-				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,
-				-1.0, -1.0,  1.0,	-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,
-				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,
-				-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,
-				-1.0, -1.0, -1.0,	-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,
-				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	-1.0,  1.0,  1.0,
-				-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
-				-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
-			}));
-			/*
-			string chair = extractFileContent("C:/temp/chair.txt"),
-				fan = extractFileContent("C:/temp/fan.txt"),
-				floor = extractFileContent("C:/temp/floor.txt"),
-				table = extractFileContent("C:/temp/table.txt");
-			*/
+				cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
 		// shader
 			int shader = myPainter->addShader("color3D.vert", "color3D.frag");
 
@@ -89,7 +68,7 @@ using namespace glm;
 				glUseProgram(myPainter->getShader(shader)->getProgramID());
 				{
 					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor2");
+					myPainter->useColor("cubeColor3D");
 					myPainter->useVertices(cube);
 					// sending the matrices
 					glUniformMatrix4fv(
@@ -169,7 +148,7 @@ using namespace glm;
 			0.0, 1.0, 0.0,
 			0.0, 0.0, 1.0
 		}));
-		myPainter->addColor("cubeColor2", vector<float>({
+		myPainter->addColor("cubeColor3D", vector<float>({
 			1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 			0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
@@ -184,17 +163,61 @@ using namespace glm;
 			0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0
 		}));
 	}
-	vector<float> Scene::import3DSMaxFile(std::string filename) {
-		string content = extractFileContent("C:/temp/" + filename);
-		string tagToFind = "*MESH_NUMVERTEX";
-		unsigned int startPos = content.find(tagToFind) + tagToFind.size() + 1;
-		string buf;
-		//while(content.at(startPos)) // is number
-		vector<float> vertices;
-		//
+	void Scene::createObjects() {
+		list<string> filesToImport = { "chair.txt", "fan.txt", "floor.txt", "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt" };
+		vector<float> buffer;
+		for(const auto& element : filesToImport) {
+			buffer.clear();
+			if(import3DSMaxFile(element, buffer))
+				availableObjects.emplace(element.substr(0, element.size() - 4), Object(&buffer, &(vector<float>())));
+			else
+				cerr << "Error importing file " + element << endl;
+		}
+		availableObjects.emplace("cube", Object(
+			&vector<float>({
+				-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
+				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
+				1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
+				1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
+				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,
+				-1.0, -1.0,  1.0,	-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,
+				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,
+				-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,
+				-1.0, -1.0, -1.0,	-1.0, -1.0,  1.0,	-1.0,  1.0,  1.0,
+				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	-1.0,  1.0,  1.0,
+				-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
+				-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
+			}),
+			&myPainter->getColor("cubeColor3D")
+		));
+	}
+	bool Scene::import3DSMaxFile(std::string filename, vector<float>& output) {
+		stringstream fileStream = stringstream(extractFileContent("C:/temp/" + filename));
+		string buffer;
+		unsigned int count = 10, verticesCount, facesCount;
+		float x, y, z;
 
-		//
-		return vertices;
+		while(!fileStream.eof()) {
+			fileStream >> buffer;
+			if(buffer == "*MESH_NUMVERTEX")
+				fileStream >> verticesCount;
+			else if(buffer == "*MESH_NUMFACES")
+				fileStream >> facesCount;
+			else if(buffer == "*MESH_VERTEX") {
+				fileStream >> buffer >> x >> y >> z;
+				cout << x << '\t' << y << '\t' << z << endl;
+				try {
+					output.push_back(x);
+					output.push_back(y);
+					output.push_back(z);
+				}
+				catch(bad_alloc &memoryAllocationException) {
+					cerr << "Exception occurred: " << memoryAllocationException.what() << endl;
+					exit(1);
+				}
+			}
+		}
+		return verticesCount == output.size() / 3;
 	}
 	void Scene::setOpenGLAttributes() {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);

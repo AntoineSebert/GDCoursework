@@ -11,7 +11,7 @@ class Object {
 		public:
 			// constructors
 				// default constructor
-					Object(std::vector<float> vertices, std::vector<float> colors);
+					Object(std::vector<float>* newVertices, std::vector<float>* newColors);
 				// copy constructor
 					Object(const Object& other);
 				// move constructor

@@ -51,6 +51,8 @@ class Painter {
 			// creating vertexattribarrays
 				void useColor(std::string name);
 				void useVertices(unsigned int index);
+				void useColor(std::vector<float> colors);
+				void useVertices(std::vector<float> vertices);
 			// draw vertices
 				void drawVertices(unsigned int index); // the parameter is not used for we actually draw only one element
 			// cleaning

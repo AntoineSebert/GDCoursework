@@ -60,11 +60,21 @@ bool Painter::addColor(std::string name, std::vector<float> color) {
 }
 void Painter::useColor(std::string name) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, palette.at(name).data());
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(vertexAttribArrays);
 	++vertexAttribArrays;
 }
 void Painter::useVertices(unsigned int index) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, verticesContainer.at(index).data());
+	glEnableVertexAttribArray(vertexAttribArrays);
+	++vertexAttribArrays;
+}
+void Painter::useColor(std::vector<float> colors) {
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors.data());
+	glEnableVertexAttribArray(1);
+	++vertexAttribArrays;
+}
+void Painter::useVertices(std::vector<float> vertices) {
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices.data());
 	glEnableVertexAttribArray(0);
 	++vertexAttribArrays;
 }
