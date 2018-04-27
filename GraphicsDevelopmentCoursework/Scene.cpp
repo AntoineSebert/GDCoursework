@@ -43,7 +43,7 @@ using namespace glm;
 	}
 	bool Scene::mainLoop() {
 		// matrix
-			mat4 projection = perspective(70.0, (double)width / height, 1.0, 100.0), modelview = mat4(1.0);
+			mat4 projection = perspective(70.0, (double)height / width, 1.0, 100.0), modelview = mat4(1.0);
 		// colors
 			createPalette();
 		// objects
@@ -66,18 +66,20 @@ using namespace glm;
 				-1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, -1.0,
 				-1.0, 1.0, 1.0,   -1.0, 1.0, -1.0,   1.0, 1.0, -1.0
 			}));
+			/*
 			string chair = extractFileContent("C:/temp/chair.txt"),
 				fan = extractFileContent("C:/temp/fan.txt"),
 				floor = extractFileContent("C:/temp/floor.txt"),
 				table = extractFileContent("C:/temp/table.txt");
+			*/
 		// shader
 			int shader = myPainter->addShader("color3D.vert", "color3D.frag");
 
 		if(shader != -1) {
 			while(mainCondition) {
-				SDL_WaitEvent(&events);
-				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
-					mainCondition = false;
+				SDL_Delay(20);
+				SDL_PollEvent(&events);
+				eventshandler();
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				modelview = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
 				glUseProgram(myPainter->getShader(shader)->getProgramID()); // send shader to graphic card
@@ -192,4 +194,28 @@ using namespace glm;
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	}
+	void Scene::eventshandler() {
+		switch(events.type) {
+			case SDL_WINDOWEVENT:
+				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
+					mainCondition = false;
+				break;
+			case SDL_KEYDOWN:
+				switch(events.key.keysym.sym) {
+					case SDLK_KP_1:
+						cout << "1" << endl;
+						break;
+					case SDLK_KP_2:
+						cout << "2" << endl;
+						break;
+					case SDLK_KP_3:
+						cout << "3" << endl;
+						break;
+					case SDLK_KP_4:
+						cout << "4" << endl;
+						break;
+				}
+				break;
+		}
 	}

@@ -13,7 +13,6 @@ int main(int argc, char* argv[]) {
 	(myScene = unique_ptr<Scene>(new Scene("Anthony Sébert 1705851", 1000, 600)))->mainLoop();
 
 	SDL_Quit();
-	getchar();
 
 	return 0;
 }
