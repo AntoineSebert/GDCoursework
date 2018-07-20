@@ -30,23 +30,23 @@ Painter& Painter::operator=(Painter&& other) noexcept {
 		shaders.emplace_back(element.get());
 	return *this;
 }
-vector<std::vector<float>> Painter::getData() const { return verticesContainer; }
-std::vector<float> Painter::getColor(std::string colorName) const { return palette.find(colorName)->second; }
-std::unique_ptr<Shader>& Painter::getShader(unsigned int index) { return shaders.at(index); }
+vector<vector<float>> Painter::getData() const { return verticesContainer; }
+vector<float> Painter::getColor(string colorName) const { return palette.find(colorName)->second; }
+unique_ptr<Shader>& Painter::getShader(size_t index) { return shaders.at(index); }
 size_t Painter::getShadersSize() const noexcept { return shaders.size(); }
-unsigned int Painter::addVertices(std::vector<float> vertices) {
+size_t Painter::addVertices(vector<float> vertices) {
 	verticesContainer.push_back(vertices);
 	return verticesContainer.size() - 1;
 }
-int Painter::addShader(string sourceVertex, string sourceFragment) {
+optional<size_t> Painter::addShader(string sourceVertex, string sourceFragment) {
 	unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
 	if(myShader->load()) {
 		shaders.push_back(move(myShader));
-		return shaders.size() - 1;
+		return optional<size_t>(shaders.size() - 1);
 	}
-	return -1;
+	return optional<size_t>();
 }
-bool Painter::addColor(std::string name, std::vector<float> color) {
+bool Painter::addColor(string name, vector<float> color) {
 	if(palette.find(name) != palette.end())
 		return false;
 	// check if color is already present
@@ -58,7 +58,7 @@ bool Painter::addColor(std::string name, std::vector<float> color) {
 	palette.emplace(name, color);
 	return true;
 }
-void Painter::useColor(std::string name) {
+void Painter::useColor(string name) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, palette.at(name).data());
 	glEnableVertexAttribArray(vertexAttribArrays);
 	++vertexAttribArrays;

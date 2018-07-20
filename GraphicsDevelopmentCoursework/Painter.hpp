@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,14 +40,14 @@ class Painter {
 			// getters
 				std::vector<std::vector<float>> getData() const;
 				std::vector<float> getColor(std::string colorName) const;
-				std::unique_ptr<Shader>& getShader(unsigned int index);
+				std::unique_ptr<Shader>& getShader(size_t index);
 				// the return type is `size_t`, because `unsigned int` may not be suficient to store container size
 				size_t getShadersSize() const noexcept;
 				//std::vector<float> getVertices() const;
 			// adding to object
 				// using `unsigned int` instead of `const_iterators` because pointers/iterators can be invalidated during the execution
-				unsigned int addVertices(std::vector<float> vertices);
-				int addShader(std::string sourceVertex, std::string sourceFragment);
+				size_t addVertices(std::vector<float> vertices);
+				std::optional<size_t> addShader(std::string sourceVertex, std::string sourceFragment);
 				bool addColor(std::string name, std::vector<float> color);
 			// creating vertexattribarrays
 				void useColor(std::string name);

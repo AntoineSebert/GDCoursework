@@ -52,9 +52,9 @@ using namespace glm;
 			unsigned int triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
 				cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
 		// shader
-			int shader = myPainter->addShader("color3D.vert", "color3D.frag");
+			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 
-		if(shader != -1) {
+		if(shader) {
 			while(mainCondition) {
 				// reduce processor consumption
 				SDL_Delay(20);
@@ -65,17 +65,17 @@ using namespace glm;
 				// set camera position
 				modelview = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
 				// send shader to graphic card
-				glUseProgram(myPainter->getShader(shader)->getProgramID());
+				glUseProgram(myPainter->getShader(*shader)->getProgramID());
 				{
 					// create vertexAttribArrays for color & vertices
 					myPainter->useColor("cubeColor3D");
 					myPainter->useVertices(cube);
 					// sending the matrices
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
 					);
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
 					);
 					// send vertices and colors to the shader
 					myPainter->drawVertices(cube);
