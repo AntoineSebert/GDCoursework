@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Object::Object(vector<float>* newVertices, vector<float>* newColors) : vertices(*newVertices), colors(*newColors) {}
+Object::Object(const vector<float>& newVertices, const vector<float>& newColors) : vertices(newVertices), colors(newColors) {}
 Object::Object(const Object& other) : vertices(other.vertices), colors(other.colors) {}
 Object::Object(Object&& other) noexcept : vertices(other.vertices), colors(other.colors) {}
 Object::~Object() {}

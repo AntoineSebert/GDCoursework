@@ -5,8 +5,10 @@ using namespace glm;
 
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width)
-		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width) {
-		if(SDLInitialization() && windowCreation(name, height, width) && contextCreation() && glewInitialization()) {
+		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event())/*,
+		leftViewport(SDL_Rect()), rightViewport(SDL_Rect())*/ {
+
+		if(createViewports() && SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
 			myPainter = unique_ptr<Painter>(new Painter());
 		}
@@ -17,6 +19,7 @@ using namespace glm;
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
 		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {
+
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
 	}
@@ -49,7 +52,7 @@ using namespace glm;
 			createPalette();
 		// objects
 			createObjects();
-			unsigned int triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
+			auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
 				cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
 		// shader
 			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
@@ -90,6 +93,16 @@ using namespace glm;
 		return false;
 	}
 // protected
+	bool Scene::createViewports() {
+		/*
+		leftViewport.x = 0;
+		leftViewport.y = 0;
+		leftViewport.w = SCREEN_WIDTH / 2;
+		leftViewport.h = SCREEN_HEIGHT / 2;
+		SDL_RenderSetViewport(gRenderer, &leftViewport);
+		*/
+		return true;
+	}
 	bool Scene::SDLInitialization() {
 		if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 			cout << "Erreur lors de l'initialisation de la SDL : " << SDL_GetError() << endl;
@@ -98,7 +111,7 @@ using namespace glm;
 		}
 		return true;
 	}
-	bool Scene::windowCreation(string name, unsigned int newHeight, unsigned int newWidth) {
+	bool Scene::windowCreation(string name) {
 		setOpenGLAttributes();
 		window = SDL_CreateWindow(
 			name.c_str(),
@@ -106,15 +119,13 @@ using namespace glm;
 			SDL_WINDOWPOS_CENTERED,
 			height,
 			width,
-			SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
+			SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 		);
 		if(window == nullptr) {
-			cout << "Error during the window creation : " << SDL_GetError() << endl;
+			cerr << "Error during the window creation : " << SDL_GetError() << endl;
 			SDL_Quit();
 			return false;
 		}
-		height = newHeight;
-		width = newWidth;
 		return true;
 	}
 	bool Scene::contextCreation() {
@@ -168,17 +179,19 @@ using namespace glm;
 		vector<float> buffer;
 		for(const auto& element : filesToImport) {
 			buffer.clear();
+			/*
 			if(import3DSMaxFile(element, buffer))
-				availableObjects.emplace(element.substr(0, element.size() - 4), Object(&buffer, &(vector<float>())));
+				availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>()));
 			else
 				cerr << "Error importing file " + element << endl;
+			*/
 		}
 		availableObjects.emplace("cube", Object(
-			&vector<float>({
+			vector<float>({
 				-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
 				-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
-				1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
-				1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
+				 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
+				 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
 				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0, -1.0, -1.0,
 				-1.0, -1.0,  1.0,	-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,
 				-1.0, -1.0,  1.0,	 1.0, -1.0,  1.0,	 1.0,  1.0,  1.0,
@@ -188,13 +201,13 @@ using namespace glm;
 				-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
 				-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
 			}),
-			&myPainter->getColor("cubeColor3D")
+			myPainter->getColor("cubeColor3D")
 		));
 	}
 	bool Scene::import3DSMaxFile(std::string filename, vector<float>& output) {
 		stringstream fileStream = stringstream(extractFileContent("C:/temp/" + filename));
 		string buffer;
-		unsigned int count = 10, verticesCount, facesCount;
+		unsigned int count = 10, verticesCount = 0, facesCount = 0;
 		float x, y, z;
 
 		while(!fileStream.eof()) {
@@ -231,8 +244,14 @@ using namespace glm;
 		// find key pressed
 		switch(events.type) {
 			case SDL_WINDOWEVENT:
-				if(events.window.event == SDL_WINDOWEVENT_CLOSE)
-					mainCondition = false;
+				switch(events.window.event) {
+					case SDL_WINDOWEVENT_CLOSE:
+						mainCondition = false;
+						break;
+					case SDL_WINDOWEVENT_RESIZED:
+						resize();
+						break;
+				}
 				break;
 			case SDL_KEYDOWN:
 				switch(events.key.keysym.sym) {
@@ -277,4 +296,26 @@ using namespace glm;
 				}
 				break;
 		}
+	}
+	void Scene::resize() {
+		int width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+
+		glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		// in replacement of gluPerspective()
+		{
+			const GLdouble pi = M_PI;
+			GLdouble fW, fH;
+
+			//fH = tan( (60.0f / 2) / 180 * pi ) * 1.0f;
+			fH = tan(60.0f / 360 * pi) * 1.0f;
+			fW = fH * float(width);
+
+			glFrustum(-fW, fW, -fH, fH, 1.0f, 100.0f);
+		}
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 	}

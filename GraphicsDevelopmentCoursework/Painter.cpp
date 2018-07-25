@@ -63,12 +63,12 @@ void Painter::useColor(string name) {
 	glEnableVertexAttribArray(vertexAttribArrays);
 	++vertexAttribArrays;
 }
-void Painter::useVertices(unsigned int index) {
+void Painter::useVertices(size_t index) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, verticesContainer.at(index).data());
 	glEnableVertexAttribArray(vertexAttribArrays);
 	++vertexAttribArrays;
 }
-void Painter::drawVertices(unsigned int index) {
+void Painter::drawVertices(size_t index) {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 void Painter::disableVertexAttribArrays() {
