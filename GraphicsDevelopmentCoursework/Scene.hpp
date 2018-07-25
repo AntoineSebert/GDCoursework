@@ -29,7 +29,6 @@ class Scene {
 			SDL_Window* window;
 			SDL_GLContext openGLContext;
 			SDL_Event events;
-			SDL_Rect leftViewport, rightViewport;
 			GLenum glew;
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
@@ -56,7 +55,8 @@ class Scene {
 				bool mainLoop();
 		protected:
 			// initializations
-				bool createViewports();
+				void initLeftViewport(glm::mat4& matrix);
+				void initRightViewport(glm::mat4& matrix);
 				bool SDLInitialization();
 				void setOpenGLAttributes();
 				bool windowCreation(std::string name);
@@ -69,4 +69,5 @@ class Scene {
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
 				void resize();
+				void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 };

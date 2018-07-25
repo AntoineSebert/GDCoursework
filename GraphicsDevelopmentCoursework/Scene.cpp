@@ -6,21 +6,19 @@ using namespace glm;
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width)
 		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event()),
-		leftViewport(SDL_Rect()), rightViewport(SDL_Rect()), availableObjects(map<string, Object>()) {
+		 availableObjects(map<string, Object>()) {
 
-		if(createViewports() && SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
+		if(SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
 			myPainter = unique_ptr<Painter>(new Painter());
 		}
 	}
 	Scene::Scene(const Scene& other)
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
-		leftViewport(other.leftViewport), rightViewport(other.rightViewport) {}
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {}
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
-		leftViewport(other.leftViewport), rightViewport(other.rightViewport) {
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {
 
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
@@ -67,8 +65,28 @@ using namespace glm;
 				eventsHandler();
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				// set camera position
-				modelview = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
+				// viewport
+				initLeftViewport(modelview);
+				// send shader to graphic card
+				glUseProgram(myPainter->getShader(*shader)->getProgramID());
+				{
+					// create vertexAttribArrays for color & vertices
+					myPainter->useColor("cubeColor3D");
+					myPainter->useVertices(cube);
+					// sending the matrices
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
+					);
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+					);
+					// send vertices and colors to the shader
+					myPainter->drawVertices(cube);
+					// a bit of cleaning
+					myPainter->disableVertexAttribArrays();
+				}
+				// viewport
+				initRightViewport(modelview);
 				// send shader to graphic card
 				glUseProgram(myPainter->getShader(*shader)->getProgramID());
 				{
@@ -95,15 +113,15 @@ using namespace glm;
 		return false;
 	}
 // protected
-	bool Scene::createViewports() {
-		leftViewport.x = 0;
-		leftViewport.y = 0;
-		/*
-		leftViewport.w = SCREEN_WIDTH / 2;
-		leftViewport.h = SCREEN_HEIGHT / 2;
-		SDL_RenderSetViewport(gRenderer, &leftViewport);
-		*/
-		return true;
+	void Scene::initLeftViewport(mat4& matrix) {
+		glViewport(0, 0, width, height / 2);
+		// set camera position
+		matrix = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
+	}
+	void Scene::initRightViewport(mat4& matrix) {
+		glViewport(width / 2, 0, width, height / 2);
+		// set camera position
+		matrix = lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 	bool Scene::SDLInitialization() {
 		if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -228,7 +246,6 @@ using namespace glm;
 				}
 				catch(bad_alloc &memoryAllocationException) {
 					cerr << "Exception occurred: " << memoryAllocationException.what() << endl;
-					exit(1);
 				}
 			}
 		}
@@ -300,24 +317,25 @@ using namespace glm;
 		}
 	}
 	void Scene::resize() {
-		int width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+		width = SDL_GetWindowSurface(window)->w;
+		height = SDL_GetWindowSurface(window)->h;
 
 		glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		// in replacement of gluPerspective()
-		{
-			const GLdouble pi = M_PI;
-			GLdouble fW, fH;
-
-			//fH = tan( (60.0f / 2) / 180 * pi ) * 1.0f;
-			fH = tan(60.0f / 360 * pi) * 1.0f;
-			fW = fH * float(width);
-
-			glFrustum(-fW, fW, -fH, fH, 1.0f, 100.0f);
-		}
+		gluPerspective(60.0f, float(width), 1.0f, 100.0f);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+	}
+	void Scene::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
+		const GLdouble pi = M_PI;
+		GLdouble fW, fH;
+
+		//fH = tan( (fovY / 2) / 180 * pi ) * zNear;
+		fH = tan(fovY / 360 * pi) * zNear;
+		fW = fH * aspect;
+
+		glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 	}
