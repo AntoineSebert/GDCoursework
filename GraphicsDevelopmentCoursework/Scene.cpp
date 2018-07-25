@@ -5,8 +5,8 @@ using namespace glm;
 
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width)
-		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event())/*,
-		leftViewport(SDL_Rect()), rightViewport(SDL_Rect())*/ {
+		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event()),
+		leftViewport(SDL_Rect()), rightViewport(SDL_Rect()), availableObjects(map<string, Object>()) {
 
 		if(createViewports() && SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
@@ -15,10 +15,12 @@ using namespace glm;
 	}
 	Scene::Scene(const Scene& other)
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {}
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
+		leftViewport(other.leftViewport), rightViewport(other.rightViewport) {}
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
+		leftViewport(other.leftViewport), rightViewport(other.rightViewport) {
 
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
@@ -94,9 +96,9 @@ using namespace glm;
 	}
 // protected
 	bool Scene::createViewports() {
-		/*
 		leftViewport.x = 0;
 		leftViewport.y = 0;
+		/*
 		leftViewport.w = SCREEN_WIDTH / 2;
 		leftViewport.h = SCREEN_HEIGHT / 2;
 		SDL_RenderSetViewport(gRenderer, &leftViewport);
