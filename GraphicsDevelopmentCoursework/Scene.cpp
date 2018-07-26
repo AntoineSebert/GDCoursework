@@ -113,7 +113,7 @@ using namespace glm;
 
 				// disable shader
 				glUseProgram(0);
-				SDL_GL_SwapWindow(window);++++++++++++++++++
+				SDL_GL_SwapWindow(window);
 
 			}
 		}

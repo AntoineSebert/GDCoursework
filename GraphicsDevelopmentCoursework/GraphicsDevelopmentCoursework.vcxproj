@@ -129,6 +129,7 @@
     <ClCompile Include="Painter.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.hpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="utility.hpp" />
+    <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

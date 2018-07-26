@@ -12,6 +12,7 @@
 #include "Object.h"
 #include "Painter.hpp"
 #include "utility.hpp"
+#include "Viewport.h"
 
 #include <algorithm>
 #include <iostream>
@@ -34,11 +35,11 @@ class Scene {
 			std::unique_ptr<Painter> myPainter;
 			unsigned int height, width;
 			std::map<std::string, Object> availableObjects;
+			std::array<Viewport, 2> viewports;
 	/* MEMBERS */
 		public:
 			// constructors
 				// default constructor
-					Scene() = delete;
 					Scene(std::string name, unsigned int height, unsigned int width);
 				// copy constructor
 					Scene(const Scene& other);
