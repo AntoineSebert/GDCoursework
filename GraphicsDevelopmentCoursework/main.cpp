@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
 	for(const auto& p : std::experimental::filesystem::directory_iterator(path))
 		cout << p << endl;
 
-	(myScene = unique_ptr<Scene>(new Scene("Anthony Sébert 1705851", 1000, 600)))->mainLoop();
+	(myScene = unique_ptr<Scene>(new Scene("Anthony Sébert 1705851", 600, 1000)))->mainLoop();
 
 	SDL_Quit();
 
