@@ -36,6 +36,7 @@ class Scene {
 			unsigned int height, width;
 			std::map<std::string, Object> availableObjects;
 			std::vector<Viewport> viewports;
+			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */
 		public:
 			// constructors

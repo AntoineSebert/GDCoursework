@@ -33,3 +33,5 @@ using namespace std;
 		float Viewport::getPosy() { return posy; }
 		mat4 Viewport::getProjection() { return projection; }
 		mat4 Viewport::getModelview() { return modelview; }
+	// other
+		void Viewport::call() { glViewport(posx, posy, width, height);  }

@@ -28,4 +28,6 @@ class Viewport {
 				float getPosy();
 				glm::mat4 getProjection();
 				glm::mat4 getModelview();
+			// other
+				void call();
 };

@@ -72,62 +72,65 @@ using namespace glm;
 				lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
 			));
 
-		if(shader) {
-			while(mainCondition) {
-				// reduce processor consumption
-				SDL_Delay(20);
-				// handle events
-				eventsHandler();
-				// clear screen
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		while(mainCondition) {
+			auto start = SDL_GetTicks();
+			// handle events
+			eventsHandler();
+			// clear screen
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				// viewport
-				glViewport(viewports.at(0).getPosx(), viewports.at(0).getPosy(), viewports.at(0).getWidth(), viewports.at(0).getHeight());
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
-
-				// viewport
-				glViewport(viewports.at(1).getPosx(), viewports.at(1).getPosy(), viewports.at(1).getWidth(), viewports.at(1).getHeight());
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
-
-				// disable shader
-				glUseProgram(0);
-				SDL_GL_SwapWindow(window);
-
+			// viewport
+			viewports.at(0).call();
+			// send shader to graphic card
+			glUseProgram(myPainter->getShader(*shader)->getProgramID());
+			{
+				// create vertexAttribArrays for color & vertices
+				myPainter->useColor("cubeColor3D");
+				myPainter->useVertices(cube);
+				// sending the matrices
+				glUniformMatrix4fv(
+					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
+				);
+				glUniformMatrix4fv(
+					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
+				);
+				// send vertices and colors to the shader
+				myPainter->drawVertices(cube);
+				// a bit of cleaning
+				myPainter->disableVertexAttribArrays();
 			}
+
+			// viewport
+			viewports.at(1).call();
+			// send shader to graphic card
+			glUseProgram(myPainter->getShader(*shader)->getProgramID());
+			{
+				// create vertexAttribArrays for color & vertices
+				myPainter->useColor("cubeColor3D");
+				myPainter->useVertices(cube);
+				// sending the matrices
+				glUniformMatrix4fv(
+					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
+				);
+				glUniformMatrix4fv(
+					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
+				);
+				// send vertices and colors to the shader
+				myPainter->drawVertices(cube);
+				// a bit of cleaning
+				myPainter->disableVertexAttribArrays();
+			}
+
+			// disable shader
+			glUseProgram(0);
+			SDL_GL_SwapWindow(window);
+
+
+			auto end = SDL_GetTicks();
+			auto elapsedTime = end - start;
+			if(elapsedTime < framerate)
+				SDL_Delay(framerate - elapsedTime);
+
 		}
 		return false;
 	}
