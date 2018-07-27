@@ -6,7 +6,7 @@ using namespace glm;
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width)
 		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event()),
-		 availableObjects(map<string, Object>()) {
+		 availableObjects(map<string, Object>()), viewports(vector<Viewport>()) {
 
 		if(SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
@@ -15,10 +15,12 @@ using namespace glm;
 	}
 	Scene::Scene(const Scene& other)
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {}
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
+		viewports(other.viewports) {}
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects) {
+		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
+		viewports(other.viewports) {
 
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
@@ -43,6 +45,8 @@ using namespace glm;
 		height = other.height;
 		width = other.width;
 		availableObjects = other.availableObjects;
+		viewports = other.viewports;
+
 		return *this;
 	}
 	bool Scene::mainLoop() {
@@ -54,6 +58,19 @@ using namespace glm;
 				cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
 		// shader
 			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
+		// viewports
+			viewports.push_back(Viewport(
+				vec2(0, 0),
+				vec2(width / 2, height),
+				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
+				lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
+			));
+			viewports.push_back(Viewport(
+				vec2(width / 2, 0),
+				vec2(width / 2, height),
+				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
+				lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
+			));
 
 		if(shader) {
 			while(mainCondition) {
@@ -64,10 +81,8 @@ using namespace glm;
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				// matrix
-				mat4 projection = perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), modelview = mat4(1.0);
 				// viewport
-				initLeftViewport(modelview);
+				glViewport(viewports.at(0).getPosx(), viewports.at(0).getPosy(), viewports.at(0).getWidth(), viewports.at(0).getHeight());
 				// send shader to graphic card
 				glUseProgram(myPainter->getShader(*shader)->getProgramID());
 				{
@@ -76,10 +91,10 @@ using namespace glm;
 					myPainter->useVertices(cube);
 					// sending the matrices
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
 					);
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
 					);
 					// send vertices and colors to the shader
 					myPainter->drawVertices(cube);
@@ -87,11 +102,8 @@ using namespace glm;
 					myPainter->disableVertexAttribArrays();
 				}
 
-				// matrix
-				projection = perspective(70.0, (double)(width / 2) / height, 1.0, 100.0);
-				modelview = mat4(1.0);
 				// viewport
-				initRightViewport(modelview);
+				glViewport(viewports.at(1).getPosx(), viewports.at(1).getPosy(), viewports.at(1).getWidth(), viewports.at(1).getHeight());
 				// send shader to graphic card
 				glUseProgram(myPainter->getShader(*shader)->getProgramID());
 				{
@@ -100,10 +112,10 @@ using namespace glm;
 					myPainter->useVertices(cube);
 					// sending the matrices
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(projection)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
 					);
 					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(modelview)
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
 					);
 					// send vertices and colors to the shader
 					myPainter->drawVertices(cube);
@@ -121,16 +133,6 @@ using namespace glm;
 	}
 // protected
 	// initializations
-		void Scene::initLeftViewport(mat4& matrix) {
-			glViewport(0, 0, width / 2, height);
-			// set camera position
-			matrix = lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0));
-		}
-		void Scene::initRightViewport(mat4& matrix) {
-			glViewport(width / 2, 0, width / 2, height);
-			// set camera position
-			matrix = lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0));
-		}
 		bool Scene::SDLInitialization() {
 			if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 				cout << "Erreur lors de l'initialisation de la SDL : " << SDL_GetError() << endl;

@@ -35,7 +35,7 @@ class Scene {
 			std::unique_ptr<Painter> myPainter;
 			unsigned int height, width;
 			std::map<std::string, Object> availableObjects;
-			std::array<Viewport, 2> viewports;
+			std::vector<Viewport> viewports;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -56,8 +56,6 @@ class Scene {
 				bool mainLoop();
 		protected:
 			// initializations
-				void initLeftViewport(glm::mat4& matrix);
-				void initRightViewport(glm::mat4& matrix);
 				bool SDLInitialization();
 				void setOpenGLAttributes();
 				bool windowCreation(std::string name);

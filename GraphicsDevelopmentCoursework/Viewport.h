@@ -3,16 +3,17 @@
 #pragma warning(push, 0) // disable warnings
 #include <glm/glm.hpp>
 #pragma warning(pop)
+#include <GL/glew.h>
 
 class Viewport {
 	/* ATTRIBUTES */
 		private:
-			unsigned int posx, posy, width, height;
+			float posx, posy, width, height;
 			glm::mat4 projection, modelview;
 	/* MEMBERS */
 		public:
 			// constructors
-				Viewport(unsigned int posx, unsigned int posy, unsigned int width, unsigned int weight, glm::mat4 projection, glm::mat4 modelview);
+				Viewport(glm::vec2 pos, glm::vec2 dimension, glm::mat4 projection, glm::mat4 modelview);
 				Viewport(const Viewport& other);
 				Viewport(Viewport&& other) noexcept;
 			// destructor
@@ -21,8 +22,10 @@ class Viewport {
 				Viewport& operator=(const Viewport& other);
 				Viewport& operator=(Viewport&& other) noexcept;
 			// getters
-				unsigned int getHeight();
-				unsigned int getWidth();
+				float getHeight();
+				float getWidth();
+				float getPosx();
+				float getPosy();
 				glm::mat4 getProjection();
 				glm::mat4 getModelview();
 };
