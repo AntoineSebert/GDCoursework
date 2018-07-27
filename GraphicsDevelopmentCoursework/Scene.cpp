@@ -56,6 +56,7 @@ using namespace glm;
 			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 		// viewports
 			auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+			// emplacing viewports in the container
 			viewports.emplace_back(
 				vec2(0, 0), vec2(width / 2, height),
 				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
@@ -233,7 +234,10 @@ using namespace glm;
 		}
 	// other
 		bool Scene::import3DSMaxFile(std::string filename, vector<float>& output) {
-			stringstream fileStream = stringstream(extractFileContent("C:/temp/" + filename));
+			auto file_content = extractFileContent("C:/temp/" + filename);
+			if(!file_content)
+				return false;
+			stringstream fileStream = stringstream(*file_content);
 			string buffer;
 			unsigned int count = 10, verticesCount = 0, facesCount = 0;
 			float x = 0.0, y = 0.0, z = 0.0;
