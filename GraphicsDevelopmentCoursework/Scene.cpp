@@ -5,22 +5,20 @@ using namespace glm;
 
 // public
 	Scene::Scene(string name, unsigned int height, unsigned int width)
-		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), height(height), width(width), events(SDL_Event()),
-		 availableObjects(map<string, Object>()), viewports(vector<Viewport>()) {
+		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()), availableObjects(map<string, Object>()),
+		viewports(vector<Viewport>()) {
 
-		if(SDLInitialization() && windowCreation(name) && contextCreation() && glewInitialization()) {
+		if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization()) {
 			mainCondition = true;
 			myPainter = unique_ptr<Painter>(new Painter());
 		}
 	}
 	Scene::Scene(const Scene& other)
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
-		viewports(other.viewports) {}
+		mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {}
 	Scene::Scene(Scene&& other) noexcept
 		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), height(other.height), width(other.width), availableObjects(other.availableObjects),
-		viewports(other.viewports) {
+		mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {
 
 		SDL_GL_DeleteContext(other.openGLContext);
 		SDL_DestroyWindow(other.window);
@@ -42,8 +40,6 @@ using namespace glm;
 		events = other.events;
 		glew = other.glew;
 		mainCondition = other.mainCondition;
-		height = other.height;
-		width = other.width;
 		availableObjects = other.availableObjects;
 		viewports = other.viewports;
 
@@ -59,22 +55,19 @@ using namespace glm;
 		// shader
 			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 		// viewports
-			viewports.push_back(Viewport(
-				vec2(0, 0),
-				vec2(width / 2, height),
-				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-				lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
-			));
-			viewports.push_back(Viewport(
-				vec2(width / 2, 0),
-				vec2(width / 2, height),
-				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-				lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
-			));
+			auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+			viewports.emplace_back(
+				vec2(0, 0), vec2(width / 2, height),
+				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
+			);
+			viewports.emplace_back(
+				vec2(width / 2, 0), vec2(width / 2, height),
+				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
+			);
 
 		while(mainCondition) {
 			auto start = SDL_GetTicks();
-			// handle events
+
 			eventsHandler();
 			// clear screen
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -125,7 +118,7 @@ using namespace glm;
 			glUseProgram(0);
 			SDL_GL_SwapWindow(window);
 
-
+			// reduce processor charge
 			auto end = SDL_GetTicks();
 			auto elapsedTime = end - start;
 			if(elapsedTime < framerate)
@@ -144,7 +137,7 @@ using namespace glm;
 			}
 			return true;
 		}
-		bool Scene::windowCreation(string name) {
+		bool Scene::windowCreation(string name, unsigned int width, unsigned int height) {
 			setOpenGLAttributes();
 			window = SDL_CreateWindow(
 				name.c_str(),
@@ -264,6 +257,7 @@ using namespace glm;
 					}
 				}
 			}
+
 			return verticesCount == output.size() / 3;
 		}
 		void Scene::setOpenGLAttributes() {
@@ -283,7 +277,7 @@ using namespace glm;
 							mainCondition = false;
 							break;
 						case SDL_WINDOWEVENT_RESIZED:
-							resize();
+							// automatic, for I work from the window dimensions given by SDL ( SDL_GetWindowSurface(window) )
 							break;
 					}
 					break;
@@ -330,27 +324,4 @@ using namespace glm;
 					}
 					break;
 			}
-		}
-		void Scene::resize() {
-			width = SDL_GetWindowSurface(window)->w;
-			height = SDL_GetWindowSurface(window)->h;
-
-			glViewport(0, 0, (GLsizei)width, (GLsizei)height);
-
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			gluPerspective(60.0f, float(width), 1.0f, 100.0f);
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-		}
-		void Scene::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
-			const GLdouble pi = M_PI;
-			GLdouble fW, fH;
-
-			//fH = tan( (fovY / 2) / 180 * pi ) * zNear;
-			fH = tan(fovY / 360 * pi) * zNear;
-			fW = fH * aspect;
-
-			glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 		}

@@ -33,7 +33,6 @@ class Scene {
 			GLenum glew;
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
-			unsigned int height, width;
 			std::map<std::string, Object> availableObjects;
 			std::vector<Viewport> viewports;
 			const unsigned int framerate = 1000 / 50;
@@ -59,7 +58,7 @@ class Scene {
 			// initializations
 				bool SDLInitialization();
 				void setOpenGLAttributes();
-				bool windowCreation(std::string name);
+				bool windowCreation(std::string name, unsigned int width, unsigned int height);
 				bool contextCreation();
 				bool glewInitialization();
 			// set up colors and objects
@@ -68,6 +67,4 @@ class Scene {
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
-				void resize();
-				void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 };
