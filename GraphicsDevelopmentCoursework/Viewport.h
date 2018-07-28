@@ -22,12 +22,12 @@ class Viewport {
 				Viewport& operator=(const Viewport& other);
 				Viewport& operator=(Viewport&& other) noexcept;
 			// getters
-				float getHeight();
-				float getWidth();
-				float getPosx();
-				float getPosy();
-				glm::mat4 getProjection();
-				glm::mat4 getModelview();
+				float getHeight() const noexcept;
+				float getWidth() const noexcept;
+				float getPosx() const noexcept;
+				float getPosy() const noexcept;
+				glm::mat4 getProjection() const noexcept;
+				glm::mat4 getModelview() const noexcept;
 			// other
-				void call();
+				void call() const;
 };

@@ -22,6 +22,7 @@ using namespace std;
 	Shader& Shader::operator=(Shader&& other) noexcept {
 		if(this == &other)
 			return *this;
+
 		vertexID = other.vertexID;
 		fragmentID = other.fragmentID;
 		programID = other.programID;
@@ -30,14 +31,13 @@ using namespace std;
 		glDeleteShader(other.vertexID);
 		glDeleteShader(other.fragmentID);
 		glDeleteProgram(other.programID);
+
 		return *this;
 	}
 	bool Shader::load() {
 		cleanShader();
-		// compiling the shaders
-		if(!compileShader(vertexID, GL_VERTEX_SHADER, vertexSource))
-			return false;
-		if(!compileShader(fragmentID, GL_FRAGMENT_SHADER, fragmentSource))
+		// check vertices and fragments compilation
+		if(!compileShader(vertexID, GL_VERTEX_SHADER, vertexSource) || !compileShader(fragmentID, GL_FRAGMENT_SHADER, fragmentSource))
 			return false;
 		// creation of the program
 		programID = glCreateProgram();
@@ -50,6 +50,7 @@ using namespace std;
 		glBindAttribLocation(programID, 2, "in_TexCoord0");
 		// program linking
 		glLinkProgram(programID);
+
 		return checkLinking();
 	}
 	GLuint Shader::getProgramID() const { return programID; }
@@ -57,22 +58,24 @@ using namespace std;
 	bool Shader::compileShader(GLuint& shader, GLenum type, const string& sourceFile) {
 		// shader creation
 		shader = glCreateShader(type);
-		// checking the shader
+		// extract shader info from file
 		if(shader == 0) {
 			cout << "Error : the type of shader (" << type << ") does not exist" << endl;
 			return false;
 		}
-		string test = extractFileContent(sourceFile);
-		if(test.empty()) {
+		auto file_content = extractFileContent(sourceFile);
+		if(!file_content)
+			return false;
+		if(file_content->empty()) {
 			glDeleteShader(shader);
 			return false;
 		}
-		const char* output = test.c_str();
-		const GLchar* chaineCodeSource = output;
+		const GLchar* chaineCodeSource = file_content->c_str();
 		// Sending the source code to the shader
 		glShaderSource(shader, 1, &chaineCodeSource, 0);
 		// compiling the shader
 		glCompileShader(shader);
+		// checking the shader
 		return checkCompilation(shader);
 	}
 	void Shader::displayError() {
@@ -109,7 +112,7 @@ using namespace std;
 		return true;
 	}
 	bool Shader::checkCompilation(GLuint& shader) {
-		// checking the compilation
+		// compile and check
 		GLint compilationError(0);
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationError);
 		if(compilationError != GL_TRUE) {

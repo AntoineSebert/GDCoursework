@@ -4,130 +4,138 @@ using namespace std;
 using namespace glm;
 
 // public
-	Scene::Scene(string name, unsigned int height, unsigned int width)
-		: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()), availableObjects(map<string, Object>()),
-		viewports(vector<Viewport>()) {
+	// constructors
+		Scene::Scene(string name, unsigned int height, unsigned int width)
+			: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()),
+			availableObjects(map<string, Object>()), viewports(vector<Viewport>()) {
 
-		if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization()) {
-			mainCondition = true;
-			myPainter = unique_ptr<Painter>(new Painter());
+			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization()) {
+				mainCondition = true;
+				myPainter = unique_ptr<Painter>(new Painter());
+			}
 		}
-	}
-	Scene::Scene(const Scene& other)
-		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {}
-	Scene::Scene(Scene&& other) noexcept
-		: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-		mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {
+		Scene::Scene(const Scene& other)
+			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
+			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {}
+		Scene::Scene(Scene&& other) noexcept
+			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
+			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {
 
-		SDL_GL_DeleteContext(other.openGLContext);
-		SDL_DestroyWindow(other.window);
-	}
-	Scene::~Scene() {
-		SDL_GL_DeleteContext(openGLContext);
-		SDL_DestroyWindow(window);
-	}
-	Scene& Scene::operator=(const Scene& other) { return (*this = move(Scene(other))); }
-	Scene& Scene::operator=(Scene&& other) noexcept {
-		if(this == &other)
+			SDL_GL_DeleteContext(other.openGLContext);
+			SDL_DestroyWindow(other.window);
+		}
+	// destructor
+		Scene::~Scene() {
+			SDL_GL_DeleteContext(openGLContext);
+			SDL_DestroyWindow(window);
+		}
+	// operators
+		Scene& Scene::operator=(const Scene& other) { return (*this = move(Scene(other))); }
+		Scene& Scene::operator=(Scene&& other) noexcept {
+			if(this == &other)
+				return *this;
+
+			SDL_GL_DeleteContext(openGLContext);
+			SDL_DestroyWindow(window);
+
+			openGLContext = other.openGLContext;
+			window = other.window;
+			events = other.events;
+			glew = other.glew;
+			mainCondition = other.mainCondition;
+			availableObjects = other.availableObjects;
+			viewports = other.viewports;
+
 			return *this;
-
-		SDL_GL_DeleteContext(openGLContext);
-		SDL_DestroyWindow(window);
-
-		openGLContext = other.openGLContext;
-		window = other.window;
-		events = other.events;
-		glew = other.glew;
-		mainCondition = other.mainCondition;
-		availableObjects = other.availableObjects;
-		viewports = other.viewports;
-
-		return *this;
-	}
-	bool Scene::mainLoop() {
-		// colors
-			createPalette();
-		// objects
-			createObjects();
-			auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
-				cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
-		// shader
-			auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
-		// viewports
-			auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
-			// emplacing viewports in the container
-			viewports.emplace_back(
-				vec2(0, 0), vec2(width / 2, height),
-				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
-			);
-			viewports.emplace_back(
-				vec2(width / 2, 0), vec2(width / 2, height),
-				perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
-			);
-
-		while(mainCondition) {
-			auto start = SDL_GetTicks();
-
-			eventsHandler();
-			// clear screen
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			// viewport
-			viewports.at(0).call();
-			// send shader to graphic card
-			glUseProgram(myPainter->getShader(*shader)->getProgramID());
-			{
-				// create vertexAttribArrays for color & vertices
-				myPainter->useColor("cubeColor3D");
-				myPainter->useVertices(cube);
-				// sending the matrices
-				glUniformMatrix4fv(
-					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
-				);
-				glUniformMatrix4fv(
-					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
-				);
-				// send vertices and colors to the shader
-				myPainter->drawVertices(cube);
-				// a bit of cleaning
-				myPainter->disableVertexAttribArrays();
-			}
-
-			// viewport
-			viewports.at(1).call();
-			// send shader to graphic card
-			glUseProgram(myPainter->getShader(*shader)->getProgramID());
-			{
-				// create vertexAttribArrays for color & vertices
-				myPainter->useColor("cubeColor3D");
-				myPainter->useVertices(cube);
-				// sending the matrices
-				glUniformMatrix4fv(
-					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"), 1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
-				);
-				glUniformMatrix4fv(
-					glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"), 1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
-				);
-				// send vertices and colors to the shader
-				myPainter->drawVertices(cube);
-				// a bit of cleaning
-				myPainter->disableVertexAttribArrays();
-			}
-
-			// disable shader
-			glUseProgram(0);
-			SDL_GL_SwapWindow(window);
-
-			// reduce processor charge
-			auto end = SDL_GetTicks();
-			auto elapsedTime = end - start;
-			if(elapsedTime < framerate)
-				SDL_Delay(framerate - elapsedTime);
-
 		}
-		return false;
-	}
+	// program loop
+		bool Scene::mainLoop() {
+			// colors
+				createPalette();
+			// objects
+				createObjects();
+				auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
+					cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
+			// shader
+				auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
+			// viewports
+				auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+				// emplacing viewports in the container
+				viewports.emplace_back(
+					vec2(0, 0), vec2(width / 2, height),
+					perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
+				);
+				viewports.emplace_back(
+					vec2(width / 2, 0), vec2(width / 2, height),
+					perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
+				);
+
+			while(mainCondition) {
+				auto start = SDL_GetTicks();
+
+				eventsHandler();
+				// clear screen
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				// viewport
+				viewports.at(0).call();
+				// send shader to graphic card
+				glUseProgram(myPainter->getShader(*shader)->getProgramID());
+				{
+					// create vertexAttribArrays for color & vertices
+					myPainter->useColor("cubeColor3D");
+					myPainter->useVertices(cube);
+					// sending the matrices
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
+						1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
+					);
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
+						1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
+					);
+					// send vertices and colors to the shader
+					myPainter->drawVertices(cube);
+					// a bit of cleaning
+					myPainter->disableVertexAttribArrays();
+				}
+
+				// viewport
+				viewports.at(1).call();
+				// send shader to graphic card
+				glUseProgram(myPainter->getShader(*shader)->getProgramID());
+				{
+					// create vertexAttribArrays for color & vertices
+					myPainter->useColor("cubeColor3D");
+					myPainter->useVertices(cube);
+					// sending the matrices
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
+						1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
+					);
+					glUniformMatrix4fv(
+						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
+						1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
+					);
+					// send vertices and colors to the shader
+					myPainter->drawVertices(cube);
+					// a bit of cleaning
+					myPainter->disableVertexAttribArrays();
+				}
+
+				// disable shader
+				glUseProgram(0);
+				SDL_GL_SwapWindow(window);
+
+				// reduce processor charge
+				auto end = SDL_GetTicks();
+				auto elapsedTime = end - start;
+				if(elapsedTime < framerate)
+					SDL_Delay(framerate - elapsedTime);
+
+			}
+			return false;
+		}
 // protected
 	// initializations
 		bool Scene::SDLInitialization() {
@@ -138,8 +146,15 @@ using namespace glm;
 			}
 			return true;
 		}
+		void Scene::setOpenGLAttributes() {
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+		}
 		bool Scene::windowCreation(string name, unsigned int width, unsigned int height) {
 			setOpenGLAttributes();
+			// create the window
 			window = SDL_CreateWindow(
 				name.c_str(),
 				SDL_WINDOWPOS_CENTERED,
@@ -148,6 +163,7 @@ using namespace glm;
 				height,
 				SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 			);
+			// check window
 			if(window == nullptr) {
 				cerr << "Error during the window creation : " << SDL_GetError() << endl;
 				SDL_Quit();
@@ -239,7 +255,7 @@ using namespace glm;
 				return false;
 			stringstream fileStream = stringstream(*file_content);
 			string buffer;
-			unsigned int count = 10, verticesCount = 0, facesCount = 0;
+			unsigned int verticesCount = 0, facesCount = 0;
 			float x = 0.0, y = 0.0, z = 0.0;
 
 			while(!fileStream.eof()) {
@@ -263,12 +279,6 @@ using namespace glm;
 			}
 
 			return verticesCount == output.size() / 3;
-		}
-		void Scene::setOpenGLAttributes() {
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		}
 		void Scene::eventsHandler() {
 			// async events catcher

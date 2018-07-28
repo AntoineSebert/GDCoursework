@@ -39,19 +39,14 @@ class Scene {
 	/* MEMBERS */
 		public:
 			// constructors
-				// default constructor
-					Scene(std::string name, unsigned int height, unsigned int width);
-				// copy constructor
-					Scene(const Scene& other);
-				// move constructor
-					Scene(Scene&& other) noexcept;
+				Scene(std::string name, unsigned int height, unsigned int width);
+				Scene(const Scene& other);
+				Scene(Scene&& other) noexcept;
 			// destructor
 				~Scene() noexcept;
 			// operators
-				// copy assignment operator
-					Scene& operator=(const Scene& other);
-				// move assignment operator
-					Scene& operator=(Scene&& other) noexcept;
+				Scene& operator=(const Scene& other);
+				Scene& operator=(Scene&& other) noexcept;
 			// program loop
 				bool mainLoop();
 		protected:

@@ -16,44 +16,39 @@
 class Painter {
 	/* ATTRIBUTES */
 		private:
-			std::vector<std::vector<float>> verticesContainer;
-			std::vector<std::unique_ptr<Shader>> shaders;
 			const static std::string shadersPath;
+			std::vector<std::vector<float>> vertices;
+			std::vector<std::unique_ptr<Shader>> shaders;
 			unsigned int vertexAttribArrays;
 			std::map<std::string, std::vector<float>> palette;
 	/* MEMBERS */
 		public:
 			// constructors
-				// default constructor
-					Painter();
-				// copy constructor
-					Painter(const Painter& other);
-				// move constructor
-					Painter(Painter&& other) noexcept;
+				Painter();
+				Painter(const Painter& other);
+				Painter(Painter&& other) noexcept;
 			// destructor
 				~Painter() noexcept;
 			// operators
-				// copy assignment operator
-					Painter& operator=(const Painter& other);
-				// move assignment operator
-					Painter& operator=(Painter&& other) noexcept;
+				Painter& operator=(const Painter& other);
+				Painter& operator=(Painter&& other) noexcept;
 			// getters
-				std::vector<std::vector<float>> getData() const;
-				std::vector<float> getColor(std::string colorName) const;
-				std::unique_ptr<Shader>& getShader(size_t index);
+				const std::vector<std::vector<float>> getData() const;
+				const std::vector<float> getColor(std::string colorName) const;
+				const std::unique_ptr<Shader>& getShader(size_t index);
 				// the return type is `size_t`, because `unsigned int` may not be suficient to store container size
 				size_t getShadersSize() const noexcept;
 				//std::vector<float> getVertices() const;
-			// adding to object
-				// using `unsigned int` instead of `const_iterators` because pointers/iterators can be invalidated during the execution
-				size_t addVertices(std::vector<float> vertices);
+			// adding elements to object
+				// using `size_t` instead of `const_iterator` because pointers/iterators may be invalidated during the execution
+				size_t addVertices(std::vector<float> newVertices);
 				std::optional<size_t> addShader(std::string sourceVertex, std::string sourceFragment);
 				bool addColor(std::string name, std::vector<float> color);
 			// creating vertexattribarrays
 				void useColor(std::string name);
 				void useVertices(size_t index);
-				void useColor(std::vector<float> colors);
-				void useVertices(std::vector<float> vertices);
+				[[maybe_unused]] void useColor(std::vector<float> colors);
+				[[maybe_unused]] void useVertices(std::vector<float> vertices);
 			// draw vertices
 				void drawVertices(size_t index); // the parameter is not used for we actually draw only one element
 			// cleaning
