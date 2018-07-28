@@ -35,9 +35,8 @@ using namespace std;
 		return *this;
 	}
 	bool Shader::load() {
-		cleanShader();
 		// check vertices and fragments compilation
-		if(!compileShader(vertexID, GL_VERTEX_SHADER, vertexSource) || !compileShader(fragmentID, GL_FRAGMENT_SHADER, fragmentSource))
+		if(cleanShader(); !compileShader(vertexID, GL_VERTEX_SHADER, vertexSource) || !compileShader(fragmentID, GL_FRAGMENT_SHADER, fragmentSource))
 			return false;
 		// creation of the program
 		programID = glCreateProgram();
@@ -57,9 +56,7 @@ using namespace std;
 // protected
 	bool Shader::compileShader(GLuint& shader, GLenum type, const string& sourceFile) {
 		// shader creation
-		shader = glCreateShader(type);
-		// extract shader info from file
-		if(shader == 0) {
+		if(shader = glCreateShader(type); shader == 0) {
 			cout << "Error : the type of shader (" << type << ") does not exist" << endl;
 			return false;
 		}
@@ -103,8 +100,7 @@ using namespace std;
 	bool Shader::checkLinking() {
 		// checking the linking
 		GLint linkError(0);
-		glGetProgramiv(programID, GL_LINK_STATUS, &linkError);
-		if(linkError != GL_TRUE) {
+		if(glGetProgramiv(programID, GL_LINK_STATUS, &linkError); linkError != GL_TRUE) {
 			displayError();
 			glDeleteProgram(programID);
 			return false;
@@ -114,8 +110,7 @@ using namespace std;
 	bool Shader::checkCompilation(GLuint& shader) {
 		// compile and check
 		GLint compilationError(0);
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationError);
-		if(compilationError != GL_TRUE) {
+		if(glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationError); compilationError != GL_TRUE) {
 			displayError();
 			glDeleteShader(shader);
 			return false;

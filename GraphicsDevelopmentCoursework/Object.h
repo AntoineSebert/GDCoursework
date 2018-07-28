@@ -1,12 +1,18 @@
 #pragma once
 
+#include <iostream>
+#include <memory>
 #include <vector>
+
+#include "Shader.h"
+#include "Viewport.h"
 
 class Object {
 	/* ATTRIBUTES */
 		private:
 			std::vector<float> vertices;
 			std::vector<float> colors;
+			static std::weak_ptr<Viewport> last_used_viewport;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -22,4 +28,6 @@ class Object {
 				// thou shalt not modify these objects
 				const std::vector<float>& getVertices() const;
 				const std::vector<float>& getColors() const;
+			// other
+				bool draw(const std::shared_ptr<Viewport> viewport, const Shader& shader) const;
 };

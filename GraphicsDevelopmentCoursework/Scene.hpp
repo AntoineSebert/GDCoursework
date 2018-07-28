@@ -34,7 +34,7 @@ class Scene {
 			bool mainCondition;
 			std::unique_ptr<Painter> myPainter;
 			std::map<std::string, Object> availableObjects;
-			std::vector<Viewport> viewports;
+			std::vector<std::shared_ptr<Viewport>> viewports;
 			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */
 		public:

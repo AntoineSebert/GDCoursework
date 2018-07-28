@@ -47,8 +47,7 @@ const string Painter::shadersPath = "../parts/Shaders/";
 // adding elements to object
 	size_t Painter::addVertices(vector<float> newVertices) { return vertices.insert(vertices.end(), newVertices) - vertices.begin(); }
 	optional<size_t> Painter::addShader(string sourceVertex, string sourceFragment) {
-		unique_ptr<Shader> myShader = unique_ptr<Shader>(new Shader(shadersPath + sourceVertex, shadersPath + sourceFragment));
-		if(myShader->load()) {
+		if(auto myShader = make_unique<Shader>(Shader(shadersPath + sourceVertex, shadersPath + sourceFragment)); myShader->load()) {
 			shaders.push_back(move(myShader));
 			return optional<size_t>(shaders.size() - 1);
 		}

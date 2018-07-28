@@ -20,5 +20,16 @@ using namespace std;
 		return *this;
 	}
 // getters
-	const std::vector<float>& Object::getVertices() const { return vertices; }
-	const std::vector<float>& Object::getColors() const { return colors; }
+	const vector<float>& Object::getVertices() const { return vertices; }
+	const vector<float>& Object::getColors() const { return colors; }
+// other
+	bool Object::draw(const shared_ptr<Viewport> viewport, const Shader& shader) const {
+		/*
+		if(viewport != last_used_viewport.lock()) {
+			last_used_viewport = weak_ptr<Viewport>(viewport);
+			viewport->call();
+		}
+		*/
+		cout << "I am being called !" << endl;
+		return false;
+	}
