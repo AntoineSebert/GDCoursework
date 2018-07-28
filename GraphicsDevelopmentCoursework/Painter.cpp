@@ -57,6 +57,7 @@ const string Painter::shadersPath = "../parts/Shaders/";
 	bool Painter::addColor(string name, vector<float> color) {
 		if(palette.find(name) != palette.end())
 			return false;
+
 		// check if color is already present
 		for(const auto& element : palette) {
 			auto it = mismatch(element.second.begin(), element.second.end(), color.begin(), color.end());
@@ -64,6 +65,7 @@ const string Painter::shadersPath = "../parts/Shaders/";
 				return false;
 		}
 		palette.emplace(name, color);
+
 		return true;
 	}
 // creating vertexattribarrays

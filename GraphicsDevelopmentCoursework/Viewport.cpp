@@ -33,4 +33,4 @@ using namespace std;
 	mat4 Viewport::getProjection() const noexcept { return projection; }
 	mat4 Viewport::getModelview() const noexcept { return modelview; }
 // other
-	void Viewport::call() const { glViewport(posx, posy, width, height);  }
+	void Viewport::call() const { glViewport(posx, posy, (GLsizei)width, (GLsizei)height);  }
