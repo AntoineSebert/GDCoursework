@@ -1,16 +1,26 @@
 #pragma once
 
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <memory>
+#include <string>
 #include <vector>
+
+#include "Shader.h"
+#include "Viewport.h"
 
 class Object {
 	/* ATTRIBUTES */
 		private:
 			std::vector<float> vertices;
 			std::vector<float> colors;
+			static std::weak_ptr<Viewport> last_used_viewport;
+			static unsigned int vertexAttribArrays;
+			Shader shader;
 	/* MEMBERS */
 		public:
 			// constructors
-				Object(const std::vector<float>& newVertices, const std::vector<float>& newColors);
+				Object(const std::vector<float>& newVertices, const std::vector<float>& newColors, std::string sourceVertex, std::string sourceFragment);
 				Object(const Object& other);
 				Object(Object&& other) noexcept;
 			// destructor
@@ -22,4 +32,6 @@ class Object {
 				// thou shalt not modify these objects
 				const std::vector<float>& getVertices() const;
 				const std::vector<float>& getColors() const;
+			// other
+				bool draw(const std::shared_ptr<Viewport> viewport);
 };
