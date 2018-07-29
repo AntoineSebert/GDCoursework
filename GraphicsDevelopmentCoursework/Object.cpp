@@ -6,10 +6,10 @@ std::weak_ptr<Viewport> Object::last_used_viewport;
 unsigned int Object::vertexAttribArrays = 0;
 
 // constructors
-	Object::Object(const vector<float>& newVertices, const vector<float>& newColors, string sourceVertex, string sourceFragment)
-		: vertices(newVertices), colors(newColors), shader(Shader(sourceVertex, sourceFragment)) {}
-	Object::Object(const Object& other) : vertices(other.vertices), colors(other.colors), shader(other.shader) {}
-	Object::Object(Object&& other) noexcept : vertices(other.vertices), colors(other.colors), shader(other.shader) {}
+	Object::Object(const vector<float>& newVertices, const vector<float>& newColors)
+		: vertices(newVertices), colors(newColors) {}
+	Object::Object(const Object& other) : vertices(other.vertices), colors(other.colors) {}
+	Object::Object(Object&& other) noexcept : vertices(other.vertices), colors(other.colors) {}
 // destructor
 	Object::~Object() { vertexAttribArrays -= 2; }
 // operators
@@ -20,7 +20,6 @@ unsigned int Object::vertexAttribArrays = 0;
 
 		vertices = other.vertices;
 		colors = other.colors;
-		shader = other.shader;
 
 		return *this;
 	}
@@ -28,12 +27,10 @@ unsigned int Object::vertexAttribArrays = 0;
 	const vector<float>& Object::getVertices() const { return vertices; }
 	const vector<float>& Object::getColors() const { return colors; }
 // other
-	bool Object::draw(const shared_ptr<Viewport> viewport) {
+	bool Object::draw(const shared_ptr<Viewport> viewport, const Shader& shader) {
 		if(viewport != last_used_viewport.lock())
 			last_used_viewport = weak_ptr<Viewport>(viewport);
 		viewport->call();
-
-		shader.load();
 
 		auto program_id = shader.getProgramID();
 
