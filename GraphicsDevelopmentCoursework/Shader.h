@@ -13,6 +13,7 @@ class Shader {
 		private:
 			GLuint vertexID, fragmentID, programID;
 			std::string vertexSource, fragmentSource;
+			static const std::string shadersPath;
 	/* MEMBERS */
 		public:
 			// constructors

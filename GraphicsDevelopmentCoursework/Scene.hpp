@@ -10,7 +10,6 @@
 #pragma warning(pop)
 
 #include "Object.h"
-#include "Painter.hpp"
 #include "utility.hpp"
 #include "Viewport.h"
 
@@ -32,8 +31,9 @@ class Scene {
 			SDL_Event events;
 			GLenum glew;
 			bool mainCondition;
-			std::unique_ptr<Painter> myPainter;
 			std::map<std::string, Object> availableObjects;
+			std::map<std::string, std::vector<float>> availableColors;
+			//std::map<std::string, std::vector<float>> availableShaders;
 			std::vector<std::shared_ptr<Viewport>> viewports;
 			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */

@@ -126,7 +126,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Painter.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Viewport.cpp" />
@@ -134,7 +133,6 @@
   <ItemGroup>
     <ClInclude Include="main.hpp" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="Painter.hpp" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="utility.hpp" />

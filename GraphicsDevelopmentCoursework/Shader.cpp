@@ -2,9 +2,11 @@
 
 using namespace std;
 
+const string Shader::shadersPath = "../parts/Shaders/";
+
 // public
 	Shader::Shader(string vertexSource, string fragmentSource)
-		: vertexID(0), fragmentID(0), programID(0), vertexSource(vertexSource), fragmentSource(fragmentSource) {}
+		: vertexID(0), fragmentID(0), programID(0), vertexSource(shadersPath + vertexSource), fragmentSource(shadersPath + fragmentSource) {}
 	Shader::Shader(const Shader& other)
 		: vertexID(other.vertexID), fragmentID(other.fragmentID), programID(other.programID), vertexSource(other.vertexSource), fragmentSource(other.fragmentSource) {}
 	Shader::Shader(Shader&& other) noexcept

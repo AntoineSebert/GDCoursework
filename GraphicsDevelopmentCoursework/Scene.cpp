@@ -9,10 +9,8 @@ using namespace glm;
 			: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()),
 			availableObjects(map<string, Object>()), viewports(vector<shared_ptr<Viewport>>()) {
 
-			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization()) {
+			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization())
 				mainCondition = true;
-				myPainter = unique_ptr<Painter>(new Painter());
-			}
 		}
 		Scene::Scene(const Scene& other)
 			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
@@ -54,10 +52,6 @@ using namespace glm;
 				createPalette();
 			// objects
 				createObjects();
-				auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
-					cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
-			// shader
-				auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
 			// viewports
 				auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
 				// emplacing viewports in the container
@@ -84,58 +78,11 @@ using namespace glm;
 				eventsHandler();
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				/*
-				// viewport
-				viewports.at(0)->call();
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
-						1, GL_FALSE, value_ptr(viewports.at(0)->getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
-						1, GL_FALSE, value_ptr(viewports.at(0)->getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
-				*/
-				
-				availableObjects.at("cube").draw(viewports.at(0), *myPainter->getShader(*shader));
-				
-				// viewport
-				viewports.at(1)->call();
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
-						1, GL_FALSE, value_ptr(viewports.at(1)->getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
-						1, GL_FALSE, value_ptr(viewports.at(1)->getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
 
-				// disable shader
-				glUseProgram(0);
+				availableObjects.at("cube").draw(viewports.at(0));
+				availableObjects.at("cube").draw(viewports.at(1));
+
+				// actualize display
 				SDL_GL_SwapWindow(window);
 
 				// reduce processor charge
@@ -201,17 +148,19 @@ using namespace glm;
 		}
 	// set up colors and objects
 		void Scene::createPalette() {
-			myPainter->addColor("blue1", vector<float>({
+			availableColors.insert_or_assign("blue1", vector<float>({
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0
-			}));
-			myPainter->addColor("multicolor1", vector<float>({
+				})
+			);
+			availableColors.insert_or_assign("multicolor1", vector<float>({
 				1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,
 				0.0, 0.0, 1.0
-			}));
-			myPainter->addColor("cubeColor3D", vector<float>({
+				})
+			);
+			availableColors.insert_or_assign("cubeColor3D", vector<float>({
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
@@ -224,7 +173,8 @@ using namespace glm;
 				0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
 				0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,
 				0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0
-			}));
+				})
+			);
 		}
 		void Scene::createObjects() {
 			list<string> filesToImport = { /*"chair.txt", "fan.txt",*/ "floor.txt"/*, "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt"*/ };
@@ -232,7 +182,7 @@ using namespace glm;
 			for(const auto& element : filesToImport) {
 				buffer.clear();
 				if(import3DSMaxFile(element, buffer))
-					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>()));
+					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>(), "", ""));
 				else
 					cerr << "Error importing file " + element << endl;
 			}
@@ -251,7 +201,8 @@ using namespace glm;
 					-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
 					-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
 				}),
-				myPainter->getColor("cubeColor3D")
+				availableColors.at("cubeColor3D"),
+				"color3D.vert", "color3D.frag"
 			));
 		}
 	// other
