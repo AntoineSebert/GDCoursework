@@ -48,7 +48,7 @@ unsigned int Object::vertexAttribArrays = 0;
 		glUniformMatrix4fv(glGetUniformLocation(program_id, "projection"), 1, GL_FALSE, value_ptr(viewport->getProjection()));
 		glUniformMatrix4fv(glGetUniformLocation(program_id, "modelview"), 1, GL_FALSE, value_ptr(viewport->getModelview()));
 		// send vertices and colors to the shader
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
 		// a bit of cleaning
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

@@ -81,8 +81,8 @@ using namespace glm;
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				availableObjects.at("cube").draw(viewports.at(0), availableShaders.at("cube_color3D"));
-				availableObjects.at("cube").draw(viewports.at(1), availableShaders.at("cube_color3D"));
+				availableObjects.at("cube").draw(viewports.at(0), availableShaders.at("color3D"));
+				availableObjects.at("floor").draw(viewports.at(1), availableShaders.at("color3D"));
 
 				// actualize display
 				SDL_GL_SwapWindow(window);
@@ -185,7 +185,7 @@ using namespace glm;
 			for(const auto& element : filesToImport) {
 				buffer.clear();
 				if(import3DSMaxFile(element, buffer))
-					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>()));
+					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>(108, 0.9)));
 				else
 					cerr << "Error importing file " + element << endl;
 			}
@@ -208,9 +208,9 @@ using namespace glm;
 			));
 		}
 		void Scene::createAndLoadShaders() {
-			availableShaders.insert_or_assign("cube_color3D", Shader("color3D.vert", "color3D.frag"));
+			availableShaders.insert_or_assign("color3D", Shader("color3D.vert", "color3D.frag"));
 
-			for(auto&[key, value] : availableShaders)
+			for(auto& [key, value] : availableShaders)
 				value.load();
 		}
 	// other
