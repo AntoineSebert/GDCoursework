@@ -14,10 +14,11 @@
 #include "Viewport.h"
 
 #include <algorithm>
+#include <cmath>
+#include <initializer_list>
 #include <iostream>
 #include <list>
 #include <map>
-#include <cmath>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -31,9 +32,9 @@ class Scene {
 			SDL_Event events;
 			GLenum glew;
 			bool mainCondition;
-			std::map<std::string, Object> availableObjects;
-			std::map<std::string, std::vector<float>> availableColors;
-			std::map<std::string, Shader> availableShaders;
+			std::map<std::string, Object> Objects;
+			std::map<std::string, std::vector<float>> Colors;
+			std::map<std::string, Shader> Shaders;
 			std::vector<std::shared_ptr<Viewport>> viewports;
 			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */

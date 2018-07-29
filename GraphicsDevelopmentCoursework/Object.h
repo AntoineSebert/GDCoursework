@@ -18,7 +18,6 @@ class Object {
 			std::vector<float> vertices;
 			std::vector<float> colors;
 			static std::weak_ptr<Viewport> last_used_viewport;
-			static unsigned int vertexAttribArrays;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -34,6 +33,8 @@ class Object {
 				// thou shalt not modify these objects
 				const std::vector<float>& getVertices() const;
 				const std::vector<float>& getColors() const;
+			// setters
+				bool changeColor(const std::vector<float>& newColor);
 			// other
-				bool draw(const std::shared_ptr<Viewport> viewport, const Shader& shader);
+				bool draw(const std::shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix = glm::mat4());
 };

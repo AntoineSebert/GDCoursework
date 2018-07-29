@@ -7,17 +7,20 @@ using namespace glm;
 	// constructors
 		Scene::Scene(string name, unsigned int height, unsigned int width)
 			: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()),
-			availableObjects(map<string, Object>()), viewports(vector<shared_ptr<Viewport>>()) {
+			Objects(map<string, Object>()), viewports(vector<shared_ptr<Viewport>>()), Shaders(map<string, Shader>()),
+			Colors(map<string, vector<float>>()) {
 
 			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization())
 				mainCondition = true;
 		}
 		Scene::Scene(const Scene& other)
 			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {}
+			mainCondition(other.mainCondition), Objects(other.Objects), viewports(other.viewports), Shaders(other.Shaders),
+			Colors(other.Colors) {}
 		Scene::Scene(Scene&& other) noexcept
 			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {
+			mainCondition(other.mainCondition), Objects(other.Objects), viewports(other.viewports), Shaders(other.Shaders),
+			Colors(other.Colors) {
 
 			SDL_GL_DeleteContext(other.openGLContext);
 			SDL_DestroyWindow(other.window);
@@ -41,18 +44,18 @@ using namespace glm;
 			events = other.events;
 			glew = other.glew;
 			mainCondition = other.mainCondition;
-			availableObjects = other.availableObjects;
+			Objects = other.Objects;
 			viewports = other.viewports;
+			Shaders = other.Shaders;
+			Colors = other.Colors;
 
 			return *this;
 		}
 	// program loop
 		bool Scene::mainLoop() {
-			// colors
+			// colors, objects, shaders
 				createPalette();
-			// objects
 				createObjects();
-			// shader
 				createAndLoadShaders();
 			// viewports
 				auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
@@ -62,7 +65,7 @@ using namespace glm;
 						vec2(0, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(1, 12, 0), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
 				viewports.emplace_back(
@@ -70,7 +73,7 @@ using namespace glm;
 						vec2(width / 2, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(5, 5, 0), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
 
@@ -78,11 +81,14 @@ using namespace glm;
 				auto start = SDL_GetTicks();
 
 				eventsHandler();
+
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				availableObjects.at("cube").draw(viewports.at(0), availableShaders.at("color3D"));
-				availableObjects.at("floor").draw(viewports.at(1), availableShaders.at("color3D"));
+				Objects.at("cube").draw(viewports.at(0), Shaders.at("color3D"));
+				Objects.at("cube").draw(viewports.at(1), Shaders.at("color3D"));
+				Objects.at("floor").draw(viewports.at(0), Shaders.at("color3D"), glm::rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)));
+				Objects.at("floor").draw(viewports.at(1), Shaders.at("color3D"), glm::rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)));
 
 				// actualize display
 				SDL_GL_SwapWindow(window);
@@ -151,19 +157,19 @@ using namespace glm;
 		}
 	// set up colors and objects
 		void Scene::createPalette() {
-			availableColors.insert_or_assign("blue1", vector<float>({
+			Colors.insert_or_assign("blue1", vector<float>({
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0
 				})
 			);
-			availableColors.insert_or_assign("multicolor1", vector<float>({
+			Colors.insert_or_assign("multicolor1", vector<float>({
 				1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,
 				0.0, 0.0, 1.0
 				})
 			);
-			availableColors.insert_or_assign("cubeColor3D", vector<float>({
+			Colors.insert_or_assign("cubeColor3D", vector<float>({
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
@@ -180,16 +186,16 @@ using namespace glm;
 			);
 		}
 		void Scene::createObjects() {
-			list<string> filesToImport = { /*"chair.txt", "fan.txt",*/ "floor.txt"/*, "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt"*/ };
+			list<string> filesToImport = { /*"chair.txt", "fan.txt",*/ "floor.txt"/*, "table.txt", "chair.txt"*/, "wallfb.txt", "wallrl.txt" };
 			vector<float> buffer;
 			for(const auto& element : filesToImport) {
 				buffer.clear();
 				if(import3DSMaxFile(element, buffer))
-					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>(108, 0.9)));
+					Objects.emplace(element.substr(0, element.size() - 4), Object(buffer, Colors.at("cubeColor3D")));
 				else
 					cerr << "Error importing file " + element << endl;
 			}
-			availableObjects.emplace("cube", Object(
+			Objects.emplace("cube", Object(
 				vector<float>({
 					-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
 					-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
@@ -204,13 +210,13 @@ using namespace glm;
 					-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
 					-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
 				}),
-				availableColors.at("cubeColor3D")
+				Colors.at("cubeColor3D")
 			));
 		}
 		void Scene::createAndLoadShaders() {
-			availableShaders.insert_or_assign("color3D", Shader("color3D.vert", "color3D.frag"));
+			Shaders.insert_or_assign("color3D", Shader("color3D.vert", "color3D.frag"));
 
-			for(auto& [key, value] : availableShaders)
+			for(auto& [key, value] : Shaders)
 				value.load();
 		}
 	// other
