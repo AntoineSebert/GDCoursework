@@ -21,7 +21,7 @@ class Object {
 	/* MEMBERS */
 		public:
 			// constructors
-				Object(const std::vector<float>& newVertices, const std::vector<float>& newColors);
+				Object(const std::vector<float>& newVertices, const std::vector<float>& newcolors = std::vector<float>());
 				Object(const Object& other);
 				Object(Object&& other) noexcept;
 			// destructor
@@ -32,7 +32,7 @@ class Object {
 			// getters
 				// thou shalt not modify these objects
 				const std::vector<float>& getVertices() const;
-				const std::vector<float>& getColors() const;
+				const std::vector<float>& getcolors() const;
 			// setters
 				bool changeColor(const std::vector<float>& newColor);
 			// other

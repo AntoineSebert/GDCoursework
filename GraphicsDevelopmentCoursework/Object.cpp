@@ -2,11 +2,12 @@
 
 using namespace std;
 
-std::weak_ptr<Viewport> Object::last_used_viewport;
-
 // constructors
-	Object::Object(const vector<float>& newVertices, const vector<float>& newColors)
-		: vertices(newVertices), colors(newColors) {}
+	Object::Object(const vector<float>& newVertices, const vector<float>& newcolors)
+		: vertices(newVertices), colors(newcolors) {
+		if(colors.empty())
+			colors = vector(newVertices.size(), (float)0.9);
+	}
 	Object::Object(const Object& other) : vertices(other.vertices), colors(other.colors) {}
 	Object::Object(Object&& other) noexcept : vertices(other.vertices), colors(other.colors) {}
 // destructor
@@ -24,7 +25,7 @@ std::weak_ptr<Viewport> Object::last_used_viewport;
 	}
 // getters
 	const vector<float>& Object::getVertices() const { return vertices; }
-	const vector<float>& Object::getColors() const { return colors; }
+	const vector<float>& Object::getcolors() const { return colors; }
 // setters
 	bool Object::changeColor(const vector<float>& newColor) {
 		if(newColor.size() != vertices.size())
@@ -34,8 +35,6 @@ std::weak_ptr<Viewport> Object::last_used_viewport;
 	}
 // other
 	bool Object::draw(const shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix) {
-		if(viewport != last_used_viewport.lock())
-			last_used_viewport = weak_ptr<Viewport>(viewport);
 		viewport->call();
 
 		auto program_id = shader.getProgramID();
@@ -46,8 +45,6 @@ std::weak_ptr<Viewport> Object::last_used_viewport;
 		// create vertexAttribArrays for color & vertices
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices.data());
 		glEnableVertexAttribArray(0);
-		if(colors.empty())
-			colors = vector<float>(vertices.size(), 0.9);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors.data());
 		glEnableVertexAttribArray(1);
 		// sending the matrices
@@ -56,7 +53,7 @@ std::weak_ptr<Viewport> Object::last_used_viewport;
 			value_ptr(matrix == glm::mat4() ? viewport->getModelview() : matrix)
 		);
 		// send vertices and colors to the shader
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size() / 3);
 		// a bit of cleaning
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

@@ -33,9 +33,9 @@ class Scene {
 			SDL_Event events;
 			GLenum glew;
 			bool mainCondition;
-			std::map<std::string, Object> Objects;
-			std::map<std::string, std::vector<float>> Colors;
-			std::map<std::string, Shader> Shaders;
+			std::map<std::string, Object> objects;
+			std::map<std::string, std::vector<float>> colors;
+			std::map<std::string, Shader> shaders;
 			std::vector<std::shared_ptr<Viewport>> viewports;
 			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */
@@ -61,9 +61,9 @@ class Scene {
 			// set up colors and objects
 				void createPalette();
 				void createObjects();
-				void createAndLoadShaders();
+				void createAndLoadshaders();
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
-				void displayObjects(std::list<std::pair<Object, std::optional<glm::mat4>>> objects);
+				void displayobjects(std::list<std::pair<Object, std::optional<glm::mat4>>> objects);
 };
