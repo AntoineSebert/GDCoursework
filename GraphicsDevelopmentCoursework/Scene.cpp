@@ -85,10 +85,12 @@ using namespace glm;
 				// clear screen
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				Objects.at("cube").draw(viewports.at(0), Shaders.at("color3D"));
-				Objects.at("cube").draw(viewports.at(1), Shaders.at("color3D"));
-				Objects.at("floor").draw(viewports.at(0), Shaders.at("color3D"), glm::rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)));
-				Objects.at("floor").draw(viewports.at(1), Shaders.at("color3D"), glm::rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)));
+				displayObjects(
+					{
+						{ Objects.at("cube"), optional<mat4>() },
+						{ Objects.at("floor"), rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)) }
+					}
+				);
 
 				// actualize display
 				SDL_GL_SwapWindow(window);
@@ -307,5 +309,11 @@ using namespace glm;
 							break;
 					}
 					break;
+			}
+		}
+		void Scene::displayObjects(list<pair<Object, optional<mat4>>> objects) {
+			for(auto& [object, optional_matrix] : objects) {
+				for(const auto& element : viewports)
+					optional_matrix ? object.draw(element, Shaders.at("color3D"), *optional_matrix) : object.draw(element, Shaders.at("color3D"));
 			}
 		}

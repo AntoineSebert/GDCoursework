@@ -22,6 +22,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Scene {
@@ -64,4 +65,5 @@ class Scene {
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
+				void displayObjects(std::list<std::pair<Object, std::optional<glm::mat4>>> objects);
 };
