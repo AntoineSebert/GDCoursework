@@ -15,11 +15,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <initializer_list>
 #include <iostream>
 #include <list>
 #include <map>
 #include <memory>
+#include <numeric> // std:accumulate
 #include <sstream>
 #include <string>
 #include <utility>
@@ -65,5 +65,5 @@ class Scene {
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
-				void displayobjects(std::list<std::pair<Object, std::optional<glm::mat4>>> objects);
+				void displayobjects(std::list<std::pair<Object, std::optional<std::list<glm::mat4>>>> objects_to_display);
 };

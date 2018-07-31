@@ -27,10 +27,10 @@ using namespace std;
 	const vector<float>& Object::getVertices() const { return vertices; }
 	const vector<float>& Object::getcolors() const { return colors; }
 // setters
-	bool Object::changeColor(const vector<float>& newColor) {
-		if(newColor.size() != vertices.size())
+	bool Object::changeColor(const vector<float>& newColors) {
+		if(newColors.size() != vertices.size())
 			return false;
-		colors = newColor;
+		colors = newColors;
 		return true;
 	}
 // other

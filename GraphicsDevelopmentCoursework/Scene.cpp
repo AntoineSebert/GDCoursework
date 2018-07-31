@@ -65,7 +65,7 @@ using namespace glm;
 						vec2(0, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(1, 12, 0), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(1, 25, 0), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
 				viewports.emplace_back(
@@ -73,7 +73,7 @@ using namespace glm;
 						vec2(width / 2, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(5, 5, 0), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(15, 15, 15), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
 
@@ -83,20 +83,29 @@ using namespace glm;
 				eventsHandler();
 
 				// clear screen
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				displayobjects({
-					{ objects.at("cube"), optional<mat4>() },
-					{ objects.at("floor"), rotate(viewports.at(0)->getModelview(), (float)radians(90.0), vec3(1, 0, 0)) }
-				});
+				// preparing objects to display and their matrices
+					list<pair<Object, optional<list<glm::mat4>>>> datalist {
+						make_pair(
+							objects.at("cube"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("floor"),
+							optional<list<glm::mat4>>({ mat4() })
+						)
+					};
+
+				displayobjects(datalist);
 
 				// actualize display
-				SDL_GL_SwapWindow(window);
+					SDL_GL_SwapWindow(window);
 
 				// reduce processor charge
-				auto end = SDL_GetTicks();
-				if(auto elapsedTime = end - start; elapsedTime < framerate)
-					SDL_Delay(framerate - elapsedTime);
+					auto end = SDL_GetTicks();
+					if(auto elapsedTime = end - start; elapsedTime < framerate)
+						SDL_Delay(framerate - elapsedTime);
 
 			}
 
@@ -217,7 +226,7 @@ using namespace glm;
 				value.load();
 		}
 	// other
-		bool Scene::import3DSMaxFile(std::string filename, vector<float>& output) {
+		bool Scene::import3DSMaxFile(string filename, vector<float>& output) {
 			auto file_content = extractFileContent("C:/temp/" + filename);
 			if(!file_content)
 				return false;
@@ -263,52 +272,51 @@ using namespace glm;
 					}
 					break;
 				case SDL_KEYDOWN:
-					switch(events.key.keysym.sym) {
-						case SDLK_KP_1:
+					switch(events.key.keysym.scancode) {
+						case SDL_SCANCODE_1:
 							cout << "1" << endl;
 							break;
-						case SDLK_KP_2:
+						case SDL_SCANCODE_2:
 							cout << "2" << endl;
 							break;
-						case SDLK_KP_3:
+						case SDL_SCANCODE_3:
 							cout << "3" << endl;
 							break;
-						case SDLK_KP_4:
+						case SDL_SCANCODE_4:
 							cout << "4" << endl;
 							break;
-						case SDLK_s:
+						case SDL_SCANCODE_S:
 							cout << "s" << endl;
 							break;
-						case SDLK_d:
+						case SDL_SCANCODE_D:
 							cout << "d" << endl;
 							break;
-						case SDLK_z:
+						case SDL_SCANCODE_Z:
 							cout << "z" << endl;
 							break;
-							/*
-						case SDLK_z:
-							cout << "Z" << endl;
-							break;
-							*/
-						case SDLK_t:
+						case SDL_SCANCODE_T:
 							cout << "t" << endl;
 							break;
-						case SDLK_r:
+						case SDL_SCANCODE_R:
 							cout << "r" << endl;
 							break;
-						case SDLK_b:
+						case SDL_SCANCODE_B:
 							cout << "b" << endl;
 							break;
-						case SDLK_f:
+						case SDL_SCANCODE_F:
 							cout << "f" << endl;
 							break;
 					}
 					break;
 			}
 		}
-		void Scene::displayobjects(list<pair<Object, optional<mat4>>> objects_to_display) {
-			for(auto& [object, optional_matrix] : objects_to_display) {
-				for(const auto& element : viewports)
-					optional_matrix ? object.draw(element, shaders.at("color3D"), *optional_matrix) : object.draw(element, shaders.at("color3D"));
+		void Scene::displayobjects(list<pair<Object, optional<list<glm::mat4>>>> objects_to_display) {
+			// iterate through pairs
+			for(auto& [object, optional_matrices] : objects_to_display) {
+				// iterate through viewports
+				for(const auto& viewport : viewports)
+					optional_matrices ?
+						object.draw(viewport, shaders.at("color3D"), accumulate(optional_matrices->begin(), optional_matrices->end(), viewport->getModelview()))
+						: object.draw(viewport, shaders.at("color3D"));
 			}
 		}

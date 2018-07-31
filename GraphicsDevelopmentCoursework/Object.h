@@ -17,7 +17,6 @@ class Object {
 		private:
 			std::vector<float> vertices;
 			std::vector<float> colors;
-			static std::weak_ptr<Viewport> last_used_viewport;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -34,7 +33,7 @@ class Object {
 				const std::vector<float>& getVertices() const;
 				const std::vector<float>& getcolors() const;
 			// setters
-				bool changeColor(const std::vector<float>& newColor);
+				bool changeColor(const std::vector<float>& newColors);
 			// other
 				bool draw(const std::shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix = glm::mat4());
 };
