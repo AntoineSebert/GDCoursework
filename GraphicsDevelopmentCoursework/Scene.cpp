@@ -7,19 +7,20 @@ using namespace glm;
 	// constructors
 		Scene::Scene(string name, unsigned int height, unsigned int width)
 			: window(nullptr), openGLContext(nullptr), glew(0), mainCondition(false), events(SDL_Event()),
-			availableObjects(map<string, Object>()), viewports(vector<Viewport>()) {
+			objects(map<string, Object>()), viewports(vector<shared_ptr<Viewport>>()), shaders(map<string, Shader>()),
+			colors(map<string, vector<float>>()) {
 
-			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization()) {
+			if(SDLInitialization() && windowCreation(name, width, height) && contextCreation() && glewInitialization())
 				mainCondition = true;
-				myPainter = unique_ptr<Painter>(new Painter());
-			}
 		}
 		Scene::Scene(const Scene& other)
 			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {}
+			mainCondition(other.mainCondition), objects(other.objects), viewports(other.viewports), shaders(other.shaders),
+			colors(other.colors) {}
 		Scene::Scene(Scene&& other) noexcept
 			: window(other.window), openGLContext(other.openGLContext), events(other.events), glew(other.glew),
-			mainCondition(other.mainCondition), availableObjects(other.availableObjects), viewports(other.viewports) {
+			mainCondition(other.mainCondition), objects(other.objects), viewports(other.viewports), shaders(other.shaders),
+			colors(other.colors) {
 
 			SDL_GL_DeleteContext(other.openGLContext);
 			SDL_DestroyWindow(other.window);
@@ -43,97 +44,71 @@ using namespace glm;
 			events = other.events;
 			glew = other.glew;
 			mainCondition = other.mainCondition;
-			availableObjects = other.availableObjects;
+			objects = other.objects;
 			viewports = other.viewports;
+			shaders = other.shaders;
+			colors = other.colors;
 
 			return *this;
 		}
 	// program loop
 		bool Scene::mainLoop() {
-			// colors
+			// colors, objects, shaders
 				createPalette();
-			// objects
 				createObjects();
-				auto triangle = myPainter->addVertices(vector<float>({ 0.5, 0.5, 0.0, -0.5, -0.5, 0.5 })),
-					cube = myPainter->addVertices(availableObjects.at("cube").getVertices());
-			// shader
-				auto shader = myPainter->addShader("color3D.vert", "color3D.frag");
+				createAndLoadshaders();
 			// viewports
 				auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
 				// emplacing viewports in the container
 				viewports.emplace_back(
-					vec2(0, 0), vec2(width / 2, height),
-					perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(1, 5, 1), vec3(0, 0, 0), vec3(0, 1, 0))
+					make_shared<Viewport>(
+						vec2(0, 0),
+						vec2(width / 2, height),
+						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
+						lookAt(vec3(1, 25, 0), vec3(0, 0, 0), vec3(0, 1, 0))
+					)
 				);
 				viewports.emplace_back(
-					vec2(width / 2, 0), vec2(width / 2, height),
-					perspective(70.0, (double)(width / 2) / height, 1.0, 100.0), lookAt(vec3(3, 3, 3), vec3(0, 0, 0), vec3(0, 1, 0))
+					make_shared<Viewport>(
+						vec2(width / 2, 0),
+						vec2(width / 2, height),
+						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
+						lookAt(vec3(15, 15, 15), vec3(0, 0, 0), vec3(0, 1, 0))
+					)
 				);
 
 			while(mainCondition) {
 				auto start = SDL_GetTicks();
 
 				eventsHandler();
+
 				// clear screen
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				// viewport
-				viewports.at(0).call();
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
-						1, GL_FALSE, value_ptr(viewports.at(0).getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
-						1, GL_FALSE, value_ptr(viewports.at(0).getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
+				// preparing objects to display and their matrices
+					list<pair<Object, optional<list<glm::mat4>>>> datalist {
+						make_pair(
+							objects.at("cube"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("floor"),
+							optional<list<glm::mat4>>({ mat4() })
+						)
+					};
 
-				// viewport
-				viewports.at(1).call();
-				// send shader to graphic card
-				glUseProgram(myPainter->getShader(*shader)->getProgramID());
-				{
-					// create vertexAttribArrays for color & vertices
-					myPainter->useColor("cubeColor3D");
-					myPainter->useVertices(cube);
-					// sending the matrices
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "projection"),
-						1, GL_FALSE, value_ptr(viewports.at(1).getProjection())
-					);
-					glUniformMatrix4fv(
-						glGetUniformLocation(myPainter->getShader(*shader)->getProgramID(), "modelview"),
-						1, GL_FALSE, value_ptr(viewports.at(1).getModelview())
-					);
-					// send vertices and colors to the shader
-					myPainter->drawVertices(cube);
-					// a bit of cleaning
-					myPainter->disableVertexAttribArrays();
-				}
+				displayobjects(datalist);
 
-				// disable shader
-				glUseProgram(0);
-				SDL_GL_SwapWindow(window);
+				// actualize display
+					SDL_GL_SwapWindow(window);
 
 				// reduce processor charge
-				auto end = SDL_GetTicks();
-				auto elapsedTime = end - start;
-				if(elapsedTime < framerate)
-					SDL_Delay(framerate - elapsedTime);
+					auto end = SDL_GetTicks();
+					if(auto elapsedTime = end - start; elapsedTime < framerate)
+						SDL_Delay(framerate - elapsedTime);
 
 			}
+
 			return false;
 		}
 // protected
@@ -172,8 +147,7 @@ using namespace glm;
 			return true;
 		}
 		bool Scene::contextCreation() {
-			openGLContext = SDL_GL_CreateContext(window);
-			if(openGLContext == nullptr) {
+			if(openGLContext = SDL_GL_CreateContext(window); openGLContext == nullptr) {
 				cout << "Error during the context creation : " << SDL_GetError() << endl;
 				SDL_DestroyWindow(window);
 				return false;
@@ -181,8 +155,7 @@ using namespace glm;
 			return true;
 		}
 		bool Scene::glewInitialization() {
-			glew = glewInit();
-			if(glew != GLEW_OK) {
+			if(glew = glewInit(); glew != GLEW_OK) {
 				cout << "Error during the initialization of GLEW : " << glewGetErrorString(glew) << endl;
 				SDL_GL_DeleteContext(openGLContext);
 				SDL_DestroyWindow(window);
@@ -193,17 +166,17 @@ using namespace glm;
 		}
 	// set up colors and objects
 		void Scene::createPalette() {
-			myPainter->addColor("blue1", vector<float>({
+			colors.insert_or_assign("blue1", vector<float>({
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0,
 				0.0, (float)(204.0 / 255.0), 1.0
 			}));
-			myPainter->addColor("multicolor1", vector<float>({
+			colors.insert_or_assign("multicolor1", vector<float>({
 				1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,
 				0.0, 0.0, 1.0
 			}));
-			myPainter->addColor("cubeColor3D", vector<float>({
+			colors.insert_or_assign("cubeColor3D", vector<float>({
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
@@ -219,18 +192,16 @@ using namespace glm;
 			}));
 		}
 		void Scene::createObjects() {
-			list<string> filesToImport = { "chair.txt", "fan.txt", "floor.txt", "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt" };
+			list<string> filesToImport = { /*"chair.txt", "fan.txt",*/ "floor.txt"/*, "table.txt", "chair.txt"*/, "wallfb.txt", "wallrl.txt" };
 			vector<float> buffer;
 			for(const auto& element : filesToImport) {
 				buffer.clear();
-				/*
 				if(import3DSMaxFile(element, buffer))
-					availableObjects.emplace(element.substr(0, element.size() - 4), Object(buffer, vector<float>()));
+					objects.emplace(element.substr(0, element.size() - 4), Object(buffer));
 				else
 					cerr << "Error importing file " + element << endl;
-				*/
 			}
-			availableObjects.emplace("cube", Object(
+			objects.emplace("cube", Object(
 				vector<float>({
 					-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
 					-1.0, -1.0, -1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0,
@@ -245,11 +216,17 @@ using namespace glm;
 					-1.0,  1.0,  1.0,	 1.0,  1.0,  1.0,	 1.0,  1.0, -1.0,
 					-1.0,  1.0,  1.0,	-1.0,  1.0, -1.0,	 1.0,  1.0, -1.0
 				}),
-				myPainter->getColor("cubeColor3D")
+				colors.at("cubeColor3D")
 			));
 		}
+		void Scene::createAndLoadshaders() {
+			shaders.insert_or_assign("color3D", Shader("color3D.vert", "color3D.frag"));
+
+			for(auto& [key, value] : shaders)
+				value.load();
+		}
 	// other
-		bool Scene::import3DSMaxFile(std::string filename, vector<float>& output) {
+		bool Scene::import3DSMaxFile(string filename, vector<float>& output) {
 			auto file_content = extractFileContent("C:/temp/" + filename);
 			if(!file_content)
 				return false;
@@ -259,8 +236,7 @@ using namespace glm;
 			float x = 0.0, y = 0.0, z = 0.0;
 
 			while(!fileStream.eof()) {
-				fileStream >> buffer;
-				if(buffer == "*MESH_NUMVERTEX")
+				if(fileStream >> buffer; buffer == "*MESH_NUMVERTEX")
 					fileStream >> verticesCount;
 				else if(buffer == "*MESH_NUMFACES")
 					fileStream >> facesCount;
@@ -296,46 +272,51 @@ using namespace glm;
 					}
 					break;
 				case SDL_KEYDOWN:
-					switch(events.key.keysym.sym) {
-						case SDLK_KP_1:
+					switch(events.key.keysym.scancode) {
+						case SDL_SCANCODE_1:
 							cout << "1" << endl;
 							break;
-						case SDLK_KP_2:
+						case SDL_SCANCODE_2:
 							cout << "2" << endl;
 							break;
-						case SDLK_KP_3:
+						case SDL_SCANCODE_3:
 							cout << "3" << endl;
 							break;
-						case SDLK_KP_4:
+						case SDL_SCANCODE_4:
 							cout << "4" << endl;
 							break;
-						case SDLK_s:
+						case SDL_SCANCODE_S:
 							cout << "s" << endl;
 							break;
-						case SDLK_d:
+						case SDL_SCANCODE_D:
 							cout << "d" << endl;
 							break;
-						case SDLK_z:
+						case SDL_SCANCODE_Z:
 							cout << "z" << endl;
 							break;
-							/*
-						case SDLK_z:
-							cout << "Z" << endl;
-							break;
-							*/
-						case SDLK_t:
+						case SDL_SCANCODE_T:
 							cout << "t" << endl;
 							break;
-						case SDLK_r:
+						case SDL_SCANCODE_R:
 							cout << "r" << endl;
 							break;
-						case SDLK_b:
+						case SDL_SCANCODE_B:
 							cout << "b" << endl;
 							break;
-						case SDLK_f:
+						case SDL_SCANCODE_F:
 							cout << "f" << endl;
 							break;
 					}
 					break;
+			}
+		}
+		void Scene::displayobjects(list<pair<Object, optional<list<glm::mat4>>>> objects_to_display) {
+			// iterate through pairs
+			for(auto& [object, optional_matrices] : objects_to_display) {
+				// iterate through viewports
+				for(const auto& viewport : viewports)
+					optional_matrices ?
+						object.draw(viewport, shaders.at("color3D"), accumulate(optional_matrices->begin(), optional_matrices->end(), viewport->getModelview()))
+						: object.draw(viewport, shaders.at("color3D"));
 			}
 		}

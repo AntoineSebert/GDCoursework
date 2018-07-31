@@ -10,18 +10,19 @@
 #pragma warning(pop)
 
 #include "Object.h"
-#include "Painter.hpp"
 #include "utility.hpp"
 #include "Viewport.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <list>
 #include <map>
-#include <cmath>
 #include <memory>
+#include <numeric> // std:accumulate
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Scene {
@@ -32,9 +33,10 @@ class Scene {
 			SDL_Event events;
 			GLenum glew;
 			bool mainCondition;
-			std::unique_ptr<Painter> myPainter;
-			std::map<std::string, Object> availableObjects;
-			std::vector<Viewport> viewports;
+			std::map<std::string, Object> objects;
+			std::map<std::string, std::vector<float>> colors;
+			std::map<std::string, Shader> shaders;
+			std::vector<std::shared_ptr<Viewport>> viewports;
 			const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */
 		public:
@@ -59,7 +61,9 @@ class Scene {
 			// set up colors and objects
 				void createPalette();
 				void createObjects();
+				void createAndLoadshaders();
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();
+				void displayobjects(std::list<std::pair<Object, std::optional<std::list<glm::mat4>>>> objects_to_display);
 };
