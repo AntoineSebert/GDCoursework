@@ -65,7 +65,7 @@ using namespace glm;
 						vec2(0, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(1, 25, 0), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(1, 100, 0), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
 				viewports.emplace_back(
@@ -73,10 +73,10 @@ using namespace glm;
 						vec2(width / 2, 0),
 						vec2(width / 2, height),
 						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(15, 15, 15), vec3(0, 0, 0), vec3(0, 1, 0))
+						lookAt(vec3(45, 45, 45), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
-
+			auto angle = 0.0f;
 			while(mainCondition) {
 				auto start = SDL_GetTicks();
 
@@ -93,7 +93,7 @@ using namespace glm;
 						),
 						make_pair(
 							objects.at("floor"),
-							optional<list<glm::mat4>>({ mat4() })
+							optional<list<glm::mat4>>({ rotate(mat4(), (float)radians(90.0), vec3(1, 0, 0)) })
 						)
 					};
 
@@ -312,11 +312,11 @@ using namespace glm;
 		}
 		void Scene::displayobjects(list<pair<Object, optional<list<glm::mat4>>>> objects_to_display) {
 			// iterate through pairs
-			for(auto& [object, optional_matrices] : objects_to_display) {
+			for(auto& [object, opt_matrices] : objects_to_display) {
 				// iterate through viewports
 				for(const auto& viewport : viewports)
-					optional_matrices ?
-						object.draw(viewport, shaders.at("color3D"), accumulate(optional_matrices->begin(), optional_matrices->end(), viewport->getModelview()))
+					opt_matrices ?
+						object.draw(viewport, shaders.at("color3D"), accumulate(opt_matrices->begin(), opt_matrices->end(), viewport->getModelview(), std::multiplies<mat4>()))
 						: object.draw(viewport, shaders.at("color3D"));
 			}
 		}
