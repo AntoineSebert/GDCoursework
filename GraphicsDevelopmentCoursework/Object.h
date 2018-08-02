@@ -26,12 +26,12 @@ class Object {
 			// destructor
 				~Object() noexcept;
 			// operators
-				Object& operator=(const Object& other);
+				inline Object& operator=(const Object& other);
 				Object& operator=(Object&& other) noexcept;
 			// getters
 				// thou shalt not modify these objects
-				const std::vector<float>& getVertices() const;
-				const std::vector<float>& getcolors() const;
+				inline const std::vector<float>& getVertices() const;
+				inline const std::vector<float>& getcolors() const;
 			// setters
 				bool changeColor(const std::vector<float>& newColors);
 			// other

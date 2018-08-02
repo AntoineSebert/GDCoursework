@@ -47,21 +47,21 @@ class Scene {
 			// destructor
 				~Scene() noexcept;
 			// operators
-				Scene& operator=(const Scene& other);
+				inline Scene& operator=(const Scene& other);
 				Scene& operator=(Scene&& other) noexcept;
 			// program loop
 				bool mainLoop();
 		protected:
 			// initializations
 				bool SDLInitialization();
-				void setOpenGLAttributes();
+				inline void setOpenGLAttributes();
 				bool windowCreation(std::string name, unsigned int width, unsigned int height);
 				bool contextCreation();
 				bool glewInitialization();
 			// set up colors and objects
 				void createPalette();
 				void createObjects();
-				void createAndLoadshaders();
+				inline void createAndLoadshaders();
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();

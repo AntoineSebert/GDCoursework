@@ -17,20 +17,14 @@ class Shader {
 	/* MEMBERS */
 		public:
 			// constructors
-				// default constructor
-					Shader() = delete;
-					Shader(std::string sourceVertex, std::string sourceFragment);
-				// copy constructor
-					Shader(const Shader& other);
-				// move constructor
-					Shader(Shader&& other) noexcept;
+				Shader(std::string sourceVertex, std::string sourceFragment);
+				Shader(const Shader& other);
+				Shader(Shader&& other) noexcept;
 			// destructor
 				~Shader() noexcept;
 			// operators
-				// copy assignment operator
-					Shader& operator=(const Shader& other);
-				// move assignment operator
-					Shader& operator=(Shader&& other) noexcept;
+				inline Shader& operator=(const Shader& other);
+				Shader& operator=(Shader&& other) noexcept;
 			// other
 				bool load();
 				GLuint getProgramID() const;

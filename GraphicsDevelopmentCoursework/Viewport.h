@@ -19,13 +19,13 @@ class Viewport {
 			// destructor
 				~Viewport() noexcept;
 			// operators
-				Viewport& operator=(const Viewport& other);
+				inline Viewport& operator=(const Viewport& other);
 				Viewport& operator=(Viewport&& other) noexcept;
 			// getters
-				float getHeight() const noexcept;
-				float getWidth() const noexcept;
-				float getPosx() const noexcept;
-				float getPosy() const noexcept;
+				inline float getHeight() const noexcept;
+				inline float getWidth() const noexcept;
+				inline float getPosx() const noexcept;
+				inline float getPosy() const noexcept;
 				glm::mat4 getProjection() const noexcept;
 				glm::mat4 getModelview() const noexcept;
 			// other

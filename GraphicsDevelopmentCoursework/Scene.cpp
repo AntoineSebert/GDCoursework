@@ -76,7 +76,7 @@ using namespace glm;
 						lookAt(vec3(45, 45, 45), vec3(0, 0, 0), vec3(0, 1, 0))
 					)
 				);
-			auto angle = 0.0f;
+
 			while(mainCondition) {
 				auto start = SDL_GetTicks();
 
@@ -312,11 +312,19 @@ using namespace glm;
 		}
 		void Scene::displayobjects(list<pair<Object, optional<list<glm::mat4>>>> objects_to_display) {
 			// iterate through pairs
-			for(auto& [object, opt_matrices] : objects_to_display) {
+			for(auto& [object, alterations] : objects_to_display) {
 				// iterate through viewports
-				for(const auto& viewport : viewports)
-					opt_matrices ?
-						object.draw(viewport, shaders.at("color3D"), accumulate(opt_matrices->begin(), opt_matrices->end(), viewport->getModelview(), std::multiplies<mat4>()))
-						: object.draw(viewport, shaders.at("color3D"));
+				for(const auto& viewport : viewports) {
+					// if transformation matrices are found or not
+					if(alterations)
+						object.draw(viewport, shaders.at("color3D"), accumulate(
+							alterations->begin(),
+							alterations->end(),
+							viewport->getModelview(),
+							std::multiplies<mat4>()
+						));
+					else
+						object.draw(viewport, shaders.at("color3D"));
+				}
 			}
 		}
