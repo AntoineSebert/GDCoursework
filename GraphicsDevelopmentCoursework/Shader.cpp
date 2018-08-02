@@ -66,10 +66,9 @@ const string Shader::shadersPath = "../parts/Shaders/";
 			cout << "Error : the type of shader (" << type << ") does not exist" << endl;
 			return false;
 		}
+		// try extracting the data and check if the operation succeed
 		auto file_content = extractFileContent(sourceFile);
-		if(!file_content)
-			return false;
-		if(file_content->empty()) {
+		if(!file_content || file_content->empty()) {
 			glDeleteShader(shader);
 			return false;
 		}

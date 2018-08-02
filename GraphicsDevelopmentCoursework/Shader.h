@@ -1,12 +1,12 @@
 #pragma once
 
-#include <GL/glew.h>
-
-#include "utility.hpp"
-
 #include <iostream>
 #include <string>
 #include <fstream>
+
+#include <GL/glew.h>
+
+#include "utility.h"
 
 class Shader {
 	/* ATTRIBUTES */

@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "Scene.h"
 
 using namespace std;
 using namespace glm;
@@ -126,6 +126,7 @@ using namespace glm;
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		}
 		bool Scene::windowCreation(string name, unsigned int width, unsigned int height) {
 			setOpenGLAttributes();
@@ -155,6 +156,7 @@ using namespace glm;
 			return true;
 		}
 		bool Scene::glewInitialization() {
+			glewExperimental = GL_TRUE; // for OpenGL 3.0 (and later) features
 			if(glew = glewInit(); glew != GLEW_OK) {
 				cout << "Error during the initialization of GLEW : " << glewGetErrorString(glew) << endl;
 				SDL_GL_DeleteContext(openGLContext);
@@ -192,11 +194,10 @@ using namespace glm;
 			}));
 		}
 		void Scene::createObjects() {
-			list<string> filesToImport = { /*"chair.txt", "fan.txt",*/ "floor.txt"/*, "table.txt", "chair.txt"*/, "wallfb.txt", "wallrl.txt" };
-			vector<float> buffer;
+			list<string> filesToImport = { "chair.txt", "fan.txt", "floor.txt", "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt" };
+			vector<float> buffer = vector<float>();
 			for(const auto& element : filesToImport) {
-				buffer.clear();
-				if(import3DSMaxFile(element, buffer))
+				if(buffer.clear(); import3DSMaxFile(element, buffer))
 					objects.emplace(element.substr(0, element.size() - 4), Object(buffer));
 				else
 					cerr << "Error importing file " + element << endl;
@@ -220,21 +221,24 @@ using namespace glm;
 			));
 		}
 		void Scene::createAndLoadshaders() {
+			// load shader for color on 3D objects
 			shaders.insert_or_assign("color3D", Shader("color3D.vert", "color3D.frag"));
-
+			// loads all stored shaders
 			for(auto& [key, value] : shaders)
 				value.load();
 		}
 	// other
 		bool Scene::import3DSMaxFile(string filename, vector<float>& output) {
+			// get file content
 			auto file_content = extractFileContent("C:/temp/" + filename);
 			if(!file_content)
 				return false;
+			// preparing reading
 			stringstream fileStream = stringstream(*file_content);
 			string buffer;
 			unsigned int verticesCount = 0, facesCount = 0;
 			float x = 0.0, y = 0.0, z = 0.0;
-
+			// get and store data
 			while(!fileStream.eof()) {
 				if(fileStream >> buffer; buffer == "*MESH_NUMVERTEX")
 					fileStream >> verticesCount;
@@ -272,38 +276,39 @@ using namespace glm;
 					}
 					break;
 				case SDL_KEYDOWN:
-					switch(events.key.keysym.scancode) {
-						case SDL_SCANCODE_1:
+					// get the key actually pressed, regardless the keyboard layout
+					switch(events.key.keysym.sym) {
+						case SDLK_1:
 							cout << "1" << endl;
 							break;
-						case SDL_SCANCODE_2:
+						case SDLK_2:
 							cout << "2" << endl;
 							break;
-						case SDL_SCANCODE_3:
+						case SDLK_3:
 							cout << "3" << endl;
 							break;
-						case SDL_SCANCODE_4:
+						case SDLK_4:
 							cout << "4" << endl;
 							break;
-						case SDL_SCANCODE_S:
+						case SDLK_s:
 							cout << "s" << endl;
 							break;
-						case SDL_SCANCODE_D:
+						case SDLK_d:
 							cout << "d" << endl;
 							break;
-						case SDL_SCANCODE_Z:
+						case SDLK_z:
 							cout << "z" << endl;
 							break;
-						case SDL_SCANCODE_T:
+						case SDLK_t:
 							cout << "t" << endl;
 							break;
-						case SDL_SCANCODE_R:
+						case SDLK_r:
 							cout << "r" << endl;
 							break;
-						case SDL_SCANCODE_B:
+						case SDLK_b:
 							cout << "b" << endl;
 							break;
-						case SDL_SCANCODE_F:
+						case SDLK_f:
 							cout << "f" << endl;
 							break;
 					}

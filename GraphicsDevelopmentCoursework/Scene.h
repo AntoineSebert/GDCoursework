@@ -1,18 +1,5 @@
 #pragma once
 
-#pragma warning(push, 0) // disable warnings
-#include <SDL.h>
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
-#pragma warning(pop)
-
-#include "Object.h"
-#include "utility.hpp"
-#include "Viewport.h"
-
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -24,6 +11,19 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#pragma warning(push, 0) // disable warnings
+#include <SDL.h>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/ext.hpp>
+#pragma warning(pop)
+
+#include "Object.h"
+#include "utility.h"
+#include "Viewport.h"
 
 class Scene {
 	/* ATTRIBUTES */
