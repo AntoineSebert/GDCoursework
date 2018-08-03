@@ -34,7 +34,7 @@ using namespace std;
 		return true;
 	}
 // other
-	bool Object::draw(const shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix) {
+	void Object::draw(const shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix) {
 		viewport->call();
 
 		auto program_id = shader.getProgramID();
@@ -60,6 +60,4 @@ using namespace std;
 
 		// disable shader
 		glUseProgram(0);
-
-		return false;
 	}

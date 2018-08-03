@@ -53,29 +53,11 @@ using namespace glm;
 		}
 	// program loop
 		bool Scene::mainLoop() {
-			// colors, objects, shaders
+			// colors, objects, shaders, viewports
 				createPalette();
 				createObjects();
 				createAndLoadshaders();
-			// viewports
-				auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
-				// emplacing viewports in the container
-				viewports.emplace_back(
-					make_shared<Viewport>(
-						vec2(0, 0),
-						vec2(width / 2, height),
-						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(1, 100, 0), vec3(0, 0, 0), vec3(0, 1, 0))
-					)
-				);
-				viewports.emplace_back(
-					make_shared<Viewport>(
-						vec2(width / 2, 0),
-						vec2(width / 2, height),
-						perspective(70.0, (double)(width / 2) / height, 1.0, 100.0),
-						lookAt(vec3(45, 45, 45), vec3(0, 0, 0), vec3(0, 1, 0))
-					)
-				);
+				createViewports();
 
 			while(mainCondition) {
 				auto start = SDL_GetTicks();
@@ -89,6 +71,26 @@ using namespace glm;
 					list<pair<Object, optional<list<glm::mat4>>>> datalist {
 						make_pair(
 							objects.at("cube"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("chair"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("fan"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("table"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("wallfb"),
+							optional<list<glm::mat4>>()
+						),
+						make_pair(
+							objects.at("wallrl"),
 							optional<list<glm::mat4>>()
 						),
 						make_pair(
@@ -194,14 +196,17 @@ using namespace glm;
 			}));
 		}
 		void Scene::createObjects() {
-			list<string> filesToImport = { "chair.txt", "fan.txt", "floor.txt", "table.txt", "chair.txt", "wallfb.txt", "wallrl.txt" };
+			// initilizations
+			list<string> filesToImport = { "chair.txt", "fan.txt", "floor.txt", "table.txt", "wallfb.txt", "wallrl.txt" };
 			vector<float> buffer = vector<float>();
+			// imports files matching the names
 			for(const auto& element : filesToImport) {
 				if(buffer.clear(); import3DSMaxFile(element, buffer))
 					objects.emplace(element.substr(0, element.size() - 4), Object(buffer));
 				else
 					cerr << "Error importing file " + element << endl;
 			}
+			// create test object
 			objects.emplace("cube", Object(
 				vector<float>({
 					-1.0, -1.0, -1.0,	 1.0, -1.0, -1.0,	 1.0,  1.0, -1.0,
@@ -226,6 +231,26 @@ using namespace glm;
 			// loads all stored shaders
 			for(auto& [key, value] : shaders)
 				value.load();
+		}
+		void Scene::createViewports() {
+			auto width = SDL_GetWindowSurface(window)->w, height = SDL_GetWindowSurface(window)->h;
+			// emplacing viewports in the container
+			viewports.emplace_back(
+				make_shared<Viewport>(
+					vec2(0, 0),
+					vec2(width / 2, height),
+					perspective(70.0, (width / 2.0) / height, 1.0, 100.0),
+					lookAt(vec3(1, 100, 0), vec3(0, 0, 0), vec3(0, 1, 0))
+				)
+			);
+			viewports.emplace_back(
+				make_shared<Viewport>(
+					vec2(width / 2, 0),
+					vec2(width / 2, height),
+					perspective(70.0, (width / 2.0) / height, 1.0, 100.0),
+					lookAt(vec3(45, 45, 45), vec3(0, 0, 0), vec3(0, 1, 0))
+				)
+			);
 		}
 	// other
 		bool Scene::import3DSMaxFile(string filename, vector<float>& output) {
@@ -326,7 +351,7 @@ using namespace glm;
 							alterations->begin(),
 							alterations->end(),
 							viewport->getModelview(),
-							std::multiplies<mat4>()
+							multiplies<mat4>()
 						));
 					else
 						object.draw(viewport, shaders.at("color3D"));

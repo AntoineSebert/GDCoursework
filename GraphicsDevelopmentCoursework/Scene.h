@@ -37,7 +37,7 @@ class Scene {
 			std::map<std::string, std::vector<float>> colors;
 			std::map<std::string, Shader> shaders;
 			std::vector<std::shared_ptr<Viewport>> viewports;
-			const unsigned int framerate = 1000 / 50;
+			static const unsigned int framerate = 1000 / 50;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -62,6 +62,7 @@ class Scene {
 				void createPalette();
 				void createObjects();
 				inline void createAndLoadshaders();
+				void createViewports();
 			// other
 				bool import3DSMaxFile(std::string filename, std::vector<float>& output);
 				void eventsHandler();

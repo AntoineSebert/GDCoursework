@@ -15,8 +15,7 @@
 class Object {
 	/* ATTRIBUTES */
 		private:
-			std::vector<float> vertices;
-			std::vector<float> colors;
+			std::vector<float> vertices, colors;
 	/* MEMBERS */
 		public:
 			// constructors
@@ -35,5 +34,5 @@ class Object {
 			// setters
 				bool changeColor(const std::vector<float>& newColors);
 			// other
-				bool draw(const std::shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix = glm::mat4());
+				void draw(const std::shared_ptr<Viewport> viewport, const Shader& shader, const glm::mat4& matrix = glm::mat4());
 };

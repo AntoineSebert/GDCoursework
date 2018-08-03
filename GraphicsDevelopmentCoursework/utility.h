@@ -13,9 +13,10 @@ static std::optional<std::string> extractFileContent(const std::string& sourceFi
 		return std::optional<std::string>();
 	}
 	std::string line, sourceCode;
-	std::cout << "loading file " + sourceFile << "..." << std::endl;
+	std::cout << "loading file " + sourceFile << "...";
 	while(getline(file, line))
 		sourceCode += line + '\n';
 	file.close();
+	std::cout << " done" << std::endl;
 	return std::optional<std::string>(sourceCode);
 }
